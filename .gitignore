@@ -1,0 +1,4 @@
+$ cat .gitignore
+#exclude all data
+**/data
+**/data

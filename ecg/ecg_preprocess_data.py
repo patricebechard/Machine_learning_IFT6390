@@ -5,97 +5,81 @@
 @email: bechardpatrice@gmail.com
 Created on Tue Nov  7 21:36:45 2017
 
-ecg
+Retrieving and preprocessing data for ECG
+data from : https://physionet.org/challenge/2017/
 
 """
 
 import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
+from urllib.request import urlretrieve
+import zipfile
 import os
 import sys
 
-def show_length_hist(lengths, n_bins=20):
-    plt.hist(lengths, n_bins)
-    plt.show()
+DATAZIP = 'data/training2017.zip'
+DATADIR = 'data/training2017'
+DATAURL = "https://physionet.org/challenge/2017/training2017.zip"
+N_PTS = 2500
 
-def show_data(data):
-    plt.plot(data)
-    plt.show()
+def retrieve_data():
+
+    # download data if not already on computer
+    if not ((os.path.exists(DATAZIP) or os.path.exists(DATADIR))):
+        urlretrieve(DATAURL, DATAZIP)
+
+    # unzip if not yet unzipped (delete zip file afterwards)
+    if not os.path.exists(DATADIR):
+        zip_ref = zipfile.ZipFile(DATAZIP)
+        zip_ref.extractall('data/')
+        zip_ref.close()
+        os.remove(DATAZIP)
 
 def preprocess_data():
 
-    paths = [os.getcwd() + '/data/ecg/normal/',
-             os.getcwd() + '/data/ecg/abnormal/']
+    datafiles = np.genfromtxt(DATADIR + '/REFERENCE.csv',
+                         dtype='str', delimiter=',')
 
-    lengths = []
-    init_datatable = True
+    #translating letter labels to int labels
+    intab = 'NAO~'
+    outtab = '0123'
+    transtab = str.maketrans(intab, outtab)
 
-    for path in paths:
+    # loading data from every .mat file
+    for i in range(datafiles.shape[0]):
+        path = DATADIR + '/' + datafiles[i,0] + '.mat'
+        features = sp.io.loadmat(path)
+        features = features['val']
+        features = features[0,:N_PTS]           #keep only a little sample of pts
+        features = features / np.std(features)  #dividing by std dev
+        datafiles[i,1] = datafiles[i,1].translate(transtab)
 
-        #defining target
-        if path == paths[0]:
-            target = 0
+        # putting everything in the same array
+        if i == 0:
+            features_table = np.expand_dims(features, axis=0)
         else:
-            target = 1
+            features_table = np.append(features_table,
+                                       np.expand_dims(features, axis=0),
+                                       axis=0)
+        if i % 100 == 0 and i != 0:
+            print("Progress : %d of %d files processed"
+                  % (i, datafiles.shape[0]))
 
-        for file in os.listdir(path):
+    datafiles = np.expand_dims(datafiles[:,-1], axis=1)
+    features_table = np.append(features_table, datafiles, axis=1)   #adding labels
+    features_table = features_table.astype(np.float32)
 
-            #load and keep only relevant data
-            example = np.loadtxt(path + file)
-            example = example[:,-1:]
-            example /= np.std(example)
-            n_pts = len(example)
-            if n_pts >= 50:
-                example = example[:50]  #crop all examples to 50 data pts
-            else:
-                continue                #else we don't keep the example
+    np.random.shuffle(features_table)                   #shuffle data
 
-            #adding target at the end of the example
-            example = np.append(example, [[target]], axis=0).T
+    # Splitting data in 3 distinct sets (training, valid, test)
+    lim1 = 2 * features_table.shape[0] // 3
+    lim2 = 5 * features_table.shape[0] // 6
 
-            #info for histogram
-            lengths.append(n_pts)
+    np.savetxt('data/ecg.train', features_table[:lim1])
+    np.savetxt('data/ecg.valid', features_table[lim1:lim2])
+    np.savetxt('data/ecg.test', features_table[lim2:])
 
-            #putting all in same array
-            if init_datatable:
-                datatable = example
-                init_datatable = False
-            else:
-                datatable = np.append(datatable,example,axis=0)
-
-        print(datatable.shape)
-        #different table for each type of data classes
-        if path == paths[0]:
-            datatable_normal = datatable
-            init_datatable = True
-        else:
-            datatable_abnormal = datatable
-
-    show_length_hist(lengths)
-
-    #splitting in training, validation and test sets
-    n_ex_normal = datatable_normal.shape[0]
-    n_ex_abnormal = datatable_abnormal.shape[0]
-
-    training_set = np.append(datatable_normal[:(n_ex_normal//2)],
-                             datatable_abnormal[:(n_ex_abnormal//2)],
-                             axis=0)
-    valid_set = np.append(datatable_normal[(n_ex_normal//2):(3*n_ex_normal//4)],
-                          datatable_abnormal[(n_ex_abnormal//2):(3*n_ex_abnormal//4)],
-                          axis=0)
-    test_set = np.append(datatable_normal[(3*n_ex_normal//4):],
-                         datatable_abnormal[(3*n_ex_abnormal//4):],
-                         axis=0)
-
-    np.random.shuffle(training_set)
-    np.random.shuffle(valid_set)
-    np.random.shuffle(test_set)
-
-    savepath = os.getcwd() + '/data/ecg/'
-
-
-    np.savetxt(savepath + 'ecg.train', training_set, delimiter=',')
-    np.savetxt(savepath + 'ecg.valid', valid_set, delimiter=',')
-    np.savetxt(savepath + 'ecg.test', test_set, delimiter=',')
-
-preprocess_data()
+if __name__ == "__main__":
+    retrieve_data()
+    preprocess_data()
