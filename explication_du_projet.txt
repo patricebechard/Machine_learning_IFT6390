@@ -6,5 +6,5 @@ Une première validation des algorithmes sera effectuée par le biais d'une tâc
 
 Trois familles d'algorithmes seront étudiées dans le cadre de ce projet:
 - Les réseaux de neurones multicouches de type perceptron. L'usage de librairies telles Keras ou TensorFlow rend très simple l'implémentation de ce type d'algorithme. Le réseau créé prendra en input un spectre traité (centré, réduit et lissé) et retournera en output la classification du spectre encodée en onehot. Le nombre ainsi que la taille des couches cachées sont des paramètres qui reste à déterminer.
-- Puisque les points formant un spectre sont corrélés entre eux, les réseaux de neurones convolutifs est une approche qui semble prometteuse. Le réseau créé calculera des convolutions unidimensionnelles à partir des données, le nombre de convolutions, de filtres ainsi que le type de pooling (max, moyen, etc.) souhaités restent à déterminer.
+- Puisque les points formant un spectre sont corrélés entre eux, les réseaux de neurones convolutifs sont une approche qui semble prometteuse. Le réseau créé calculera des convolutions unidimensionnelles à partir des données, le nombre de convolutions, de filtres ainsi que le type de pooling (max, moyen, etc.) souhaités restent à déterminer.
 - Enfin, un arbre de décision sera construit afin de classer les spectres.
