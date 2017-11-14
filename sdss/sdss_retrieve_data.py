@@ -103,6 +103,8 @@ def retrieve_data():
 
     f.close()
 
+    #command to download data : wget 
+
 def preprocess_data():
 
     f = open(USEDSTARDB)

@@ -34,7 +34,7 @@ def retrieve_data():
         zip_ref = zipfile.ZipFile(DATAZIP)
         zip_ref.extractall('data/')
         zip_ref.close()
-        os.remove(DATAZIP)eaeee
+        os.remove(DATAZIP)
 
 def preprocess_data():
 
