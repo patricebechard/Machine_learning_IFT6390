@@ -54,18 +54,27 @@ def train_model(training_set, valid_set, hidden_units,
 
     print("\nArchitecture of hidden layers : %s" % str(hidden_units))
 
+
+
     for i in range(n_prints):
-        # Fit the model
-        model.fit(X_train, Y_train, epochs=n_epochs//n_prints,
-                  batch_size=batch_size, verbose=0)
+
         scores_train = model.evaluate(X_train, Y_train, verbose=0)
         scores_test = model.evaluate(X_valid, Y_valid, verbose=0)
+
         print("\nProgress : %d / %d epochs" %(i * n_epochs //n_prints, n_epochs))
         print("Train %s: %.2f%%" % (model.metrics_names[1],
                                       scores_train[1]*100))
         print("Valid %s: %.2f%%" % (model.metrics_names[1],
                                       scores_test[1]*100))
+        # Fit the model
+        model.fit(X_train, Y_train, epochs=n_epochs//n_prints,
+                  batch_size=batch_size, verbose=0)
 
+    print("\nResults")
+    print("Train %s: %.2f%%" % (model.metrics_names[1],
+                                  scores_train[1]*100))
+    print("Valid %s: %.2f%%" % (model.metrics_names[1],
+                                  scores_test[1]*100))
 
 
 training_set = np.loadtxt("data/ecg.train", delimiter=',')
