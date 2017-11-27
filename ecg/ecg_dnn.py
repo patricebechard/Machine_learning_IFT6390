@@ -13,9 +13,9 @@ import numpy as np
 import tensorflow as tf
 import os
 
-ECG_TRAIN = os.getcwd() + '/data/ecg/ecg.train'
-ECG_VALID = os.getcwd() + '/data/ecg/ecg.valid'
-ECG_TEST = os.getcwd() + '/data/ecg/ecg.test'
+ECG_TRAIN = os.getcwd() + '/ecg/data/ecg.train'
+ECG_VALID = os.getcwd() + '/ecg/data/ecg.valid'
+ECG_TEST = os.getcwd() + '/ecg/data/ecg.test'
 
 def ecg_input_fn(dataset, num_epochs=None, shuffle=True):
     return  tf.estimator.inputs.numpy_input_fn(x={"x": np.array(dataset.data)},
