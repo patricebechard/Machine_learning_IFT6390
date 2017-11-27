@@ -39,9 +39,9 @@ model.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
-# Fit the model
-model.fit(X, Y, epochs=150, batch_size=10)
 
-# evaluate the model
-scores = model.evaluate(X, Y)
-print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
+for i in range(10):
+    # Fit the model
+    model.fit(X, Y, epochs=10, batch_size=10, verbose=0)
+    scores = model.evaluate(X, Y)
+    print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))

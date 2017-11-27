@@ -42,15 +42,15 @@ def preprocess_data():
     datafiles = np.genfromtxt(DATADIR + '/REFERENCE.csv',
                          dtype='str', delimiter=',')
 
-    #translating letter labels to int labels
+    #translating letter labels to int labels (normal or abnormal only)
     intab = 'NAO~'
-    outtab = '0123'
+    outtab = '0111'
     transtab = str.maketrans(intab, outtab)
 
     # loading data from every .mat file
     for i in range(datafiles.shape[0]):
         path = DATADIR + '/' + datafiles[i,0] + '.mat'
-        
+
         #not working anymore for an obscure reason
         features = loadmat(path)
         features = features['val']
