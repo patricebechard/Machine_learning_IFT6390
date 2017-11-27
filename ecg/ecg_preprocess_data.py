@@ -11,7 +11,8 @@ data from : https://physionet.org/challenge/2017/
 """
 
 import numpy as np
-import scipy as sp
+from scipy.io import loadmat
+
 import matplotlib.pyplot as plt
 from urllib.request import urlretrieve
 import zipfile
@@ -49,8 +50,11 @@ def preprocess_data():
     # loading data from every .mat file
     for i in range(datafiles.shape[0]):
         path = DATADIR + '/' + datafiles[i,0] + '.mat'
-        features = sp.io.loadmat(path)
+        
+        #not working anymore for an obscure reason
+        features = loadmat(path)
         features = features['val']
+
         features = features[0,:N_PTS]           #keep only a little sample of pts
         features = features / np.std(features)  #dividing by std dev
         datafiles[i,1] = datafiles[i,1].translate(transtab)
@@ -76,9 +80,12 @@ def preprocess_data():
     lim1 = 2 * features_table.shape[0] // 3
     lim2 = 5 * features_table.shape[0] // 6
 
-    np.savetxt('data/ecg.train', features_table[:lim1])
-    np.savetxt('data/ecg.valid', features_table[lim1:lim2])
-    np.savetxt('data/ecg.test', features_table[lim2:])
+    fmt = ['%.18e' for i in range(N_PTS)]
+    fmt.append('%d')
+
+    np.savetxt('data/ecg.train', features_table[:lim1], delimiter=',',fmt=fmt)
+    np.savetxt('data/ecg.valid', features_table[lim1:lim2], delimiter=',',fmt=fmt)
+    np.savetxt('data/ecg.test', features_table[lim2:], delimiter=',',fmt=fmt)
 
 if __name__ == "__main__":
     retrieve_data()
