@@ -16,9 +16,9 @@ import numpy as np
 import sys
 
 np.random.seed(69)
-N_IN = 2500
-N_OUT = 4
-n_epochs = 250
+N_IN = 500
+N_OUT = 2
+n_epochs = 50
 
 def convert_to_onehot(labels, n_classes):
     new_labels = np.zeros((len(labels), n_classes))
@@ -30,10 +30,10 @@ def train_model(training_set, valid_set, hidden_units,
                 n_epochs=250, batch_size=10, n_prints=25):
 
     X_train = training_set[:,:-1]
-    Y_train = convert_to_onehot(training_set[:,-1].astype('int'), 4)
+    Y_train = convert_to_onehot(training_set[:,-1].astype('int'), N_OUT)
 
     X_valid = valid_set[:,:-1]
-    Y_valid = convert_to_onehot(valid_set[:,-1].astype('int'), 4)
+    Y_valid = convert_to_onehot(valid_set[:,-1].astype('int'), N_OUT)
 
     model = Sequential()
 
@@ -79,6 +79,7 @@ for line in hidden_units_file:
     hidden_units = line.strip().split(',')
     hidden_units = list(map(int, hidden_units))
 
-    train_model(training_set, valid_set, hidden_units)
+    train_model(training_set, valid_set, hidden_units,
+                n_epochs=n_epochs, n_prints=5)
 
 

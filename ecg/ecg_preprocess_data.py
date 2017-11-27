@@ -23,6 +23,7 @@ DATAZIP = 'data/training2017.zip'
 DATADIR = 'data/training2017'
 DATAURL = "https://physionet.org/challenge/2017/training2017.zip"
 N_PTS = 2500
+N_FEATURES = 500
 
 def retrieve_data():
 
@@ -57,6 +58,11 @@ def preprocess_data():
 
         features = features[0,:N_PTS]           #keep only a little sample of pts
         features = features / np.std(features)  #dividing by std dev
+
+        x_interp = np.linspace(0, N_PTS, N_FEATURES)
+        # Reducing number of features
+        features = np.interp(x_interp, np.arange(N_PTS), features)
+
         datafiles[i,1] = datafiles[i,1].translate(transtab)
 
         # putting everything in the same array
@@ -80,7 +86,7 @@ def preprocess_data():
     lim1 = 2 * features_table.shape[0] // 3
     lim2 = 5 * features_table.shape[0] // 6
 
-    fmt = ['%.18e' for i in range(N_PTS)]
+    fmt = ['%.18e' for i in range(N_FEATURES)]
     fmt.append('%d')
 
     np.savetxt('data/ecg.train', features_table[:lim1], delimiter=',',fmt=fmt)
