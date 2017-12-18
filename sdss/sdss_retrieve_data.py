@@ -165,9 +165,61 @@ def smooth_spectrum(data, n=15, a=1, npts=1000):
 
     return yy
 
+def print_data_example():
+
+    f = open(USEDSTARDB)
+    f.readline()
+    num_stars = N_STARS * len(KEPT_TYPES)
+    i = 0
+
+    star_features = None
+
+    for line in f:
+        i += 1
+        [fits_file, sptype] = line.strip().split(',')
+
+        if sptype != "WD":
+            continue
+
+        hdulist = fits.open(SPECPATH + fits_file)
+        wv = hdulist['COADD'].data['loglam']
+        spec = hdulist['COADD'].data['flux']
+
+        plt.plot(wv,spec)
+        plt.xlabel(r"Wavelength (Å)")
+        plt.ylabel("Flux")
+        plt.savefig('raw.png')
+        plt.show()
+
+        #keep values with loglam between 3.60 and 3.85 (approx 3981 to 7079 angstrom)
+        lower = np.where(wv >= 3.60)
+        upper = np.where(wv <= 3.85)
+        domain = np.intersect1d(lower, upper)
+        spec = spec[domain]
+
+        spec = smooth_spectrum(spec)
+
+        plt.plot(spec)
+        plt.xlabel("# of feature")
+        plt.ylabel("Normalized flux")
+        plt.savefig('norm.png')
+        plt.show()
+        exit()
+
+        spec = np.append(spec, KEPT_TYPES[sptype])
+
+        if star_features is not None:
+            spec = np.expand_dims(spec, axis=0)
+            star_features = np.append(star_features, spec, axis=0)
+        else:
+            star_features = np.expand_dims(spec, axis=0)
+
+    np.savetxt('data/prepared_data.txt',star_features)
+
 
 
 if __name__ == "__main__":
     #retrieve_data()
-    preprocess_data()
+    #preprocess_data()
+    print_data_example()
 

@@ -1,0 +1,141 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2017
+%
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2017}
+
+\usepackage[final]{nips_2017}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2017}
+
+%Pour langue et caractères spéciaux
+\usepackage[french]{babel} 
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+\usepackage[latin1]{inputenc}
+
+%\usepackage[utf8]{inputenc} % allow utf-8 input
+%\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{amsmath}
+
+
+\title{Sur la classification d'étoiles en fonction de leur spectre d'absorption par apprentissage automatique}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+  Patrice~B\'echard\\
+  D\'epartement d'informatique\\
+  et de recherche op\'erationelle\\
+  Universit\'e de Montr\'eal\\
+  Montr\'eal, QC H3T 1J4 \\
+  \texttt{patrice.bechard@umontreal.ca} \\
+  %% examples of more authors
+  \And
+  Jean-Pascal~Gu\'evin \\
+  D\'epartement de math\'ematiques\\
+  et de statistique \\
+  Universit\'e de Montr\'eal\\
+  Montr\'eal, QC H3T 1J4 \\
+  \texttt{jean-pascal.guevin@umontreal.ca} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+\vspace{-0.8cm}
+\begin{center}
+\textbf{IFT6390 - Fondements de l'apprentissage machine - \today}
+\end{center}
+
+\begin{abstract}
+
+\end{abstract}
+
+% Introduction
+\section{Introduction}
+
+L'aspect principal du projet consiste en la classification d'étoiles en fonction de leur type spectral. L'exploration de notre univers observable a en effet amené les astrophysiciens à observer et à catégoriser des centaines de milliers d'étoiles en fonction notamment de leur taille, de leur masse, de leur température et de leur composition. Ce processus de classification se fait, entre autre, à partir du spectre d'absorption des étoiles, c'est-à-dire une mesure de l'intensité du spectre électromagnétique émis par celles-ci en fonction de la longueur d'onde.
+
+
+% Presentation des algorithmes et bases de donnees
+\section{Méthodes}
+
+Les données utilisées pour les spectres d'étoiles proviennent de la base de données \textit{Sloan Digital Sky Survey} (SDSS) \textit{Science Archive Server} (SAS) donnant gratuitement accès aux observations faites par différents télescopes. Il est évidemment nécessaire de traiter les spectres obtenus par le biais du SDSS, ceux-ci étant généralement très bruités. Un processus lissage et de normalisation permet d'en extraire l'information pertinente en éliminant le plus possible le bruit et en ne conservant que ce qui semble correspondre à des tendances plus globales. De plus, chaque spectre a été tronqué de sorte que seul le flux correspondant aux log-longueurs d'onde entre $3.65$ et $3.80$ (correspondant aux longueurs d'onde entre $\approx 398.1$ nm jusqu'à $\approx 707.9$ nm, ce qui représente le spectre de lumière visible). Finalement, une interpolation linéaire de points a permis de diminuer le nombre de traits caractéristiques à 1000, ce que les algorithmes peuvent manipuler sans problème. Un échantillon de 10000 étoiles pour chaque 6 types spectral différent utilisé (A, F, G, K, M, WD) a été traité. Puisque ces spectres sont les seules entrées des algorithmes essayés, le traitement des données a un impact majeur sur les résultats.  La figure \ref{fig:preprocessing_sdss} présente un exemple d'un spectre d'étoile avant et après avoir traiter les données.
+
+
+\begin{figure}[!htb]
+ \begin{minipage}{0.45\textwidth}
+   \includegraphics[width=\linewidth]{figures/sdss_raw.png}
+ \end{minipage}\
+ $\xRightarrow{\text{preprocessing}}$
+ \begin{minipage}{0.45\textwidth}
+   \includegraphics[width=\linewidth]{figures/sdss_norm.png}
+ \end{minipage}\
+ \caption{Effect of preprocessing on raw star spectras}\label{fig:preprocessing_sdss}
+\end{figure}
+
+
+
+Une première validation des algorithmes est effectuée par le biais d'une tâche connexe, soit la classification d'électrocardiogrammes selon l'état de santé du patient duquel il provient. Les électrocardiogrammes (ECG) étant fort semblables dans leurs formes à des spectres d'étoiles (tous deux étant des données corrélées dans l'espace en 1 dimension), ceci permet un premier ajustement des algorithmes en plus de nous initier au fonctionnement de ceux-ci dans le contexte d'une analyse spectroscopique. Les électrocardiogrammes qui utilisés proviennent du \textit{PhysioNet/Computing in Cardiology Challenge 2017} et ont l'avantage d'être plus simple à analyser, puisqu'ils sont plus lisses et moins bruités. Une séquence de 10 secondes a été conservée pour chaque ECG et les séquences ont été classées en 2 catégories, soit un patient en santé (5050 exemples), soit un patient avec une arythmie ou un autre problème cardiaque (3478 exemples). Le nombre de traits caractéristiques pour cet ensemble de données est de 500 pour chaque exemple.
+
+Trois familles d'algorithmes seront étudiées dans le cadre de ce projet. Tout d'abord, nous utiliserons des réseaux de neurones multicouches de type perceptron. L'usage de librairies telles Keras ou TensorFlow rend très simple l'implémentation de ce type d'algorithme. Le réseau créé prendra en entrée un spectre traité (centré, réduit et lissé) et retournera en sortie la classification du spectre selon un encodage \textit{onehot}. Le nombre ainsi que la taille des couches cachées sont des hyperparamètres qu'il faudra déterminer.
+
+Ensuite, puisque les points formant un spectre sont corrélés entre eux, les réseaux de neurones convolutifs sont une approche qui semble prometteuse. Le réseau créé calculera des convolutions unidimensionnelles à partir des données. Le nombre de convolutions, de filtres ainsi que le type de \textit{pooling} (max, moyen, etc.) souhaités restent à déterminer.
+
+Enfin, un arbre de décision sera construit afin de classer les spectres. Cette approche est similaire à celle conduite par \cite{ball2006robust}, qui visait à classifier des objets célestes en catégories plus grandes (étoile, galaxie ou QSO) à l'aide d'arbres de décision .
+
+
+
+% Resultats
+\section{Résultats}
+
+
+% Discussion et conclusion
+\section{Discussion}
+
+
+\section{Répartition et remerciements}
+
+
+\small
+\bibliographystyle{apalike}
+\bibliography{report}
+
+\end{document}
