@@ -220,6 +220,7 @@ def print_data_example():
 
 if __name__ == "__main__":
 <<<<<<< HEAD:sdss/sdss_retrieve_data_conflict.py
+<<<<<<< HEAD:sdss/sdss_retrieve_data_conflict.py
 <<<<<<< HEAD
     retrieve_data()
     preprocess_data()
@@ -228,6 +229,11 @@ if __name__ == "__main__":
     #preprocess_data()
     print_data_example()
 >>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
+=======
+    #retrieve_data()
+    #preprocess_data()
+    print_data_example()
+>>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516:sdss/sdss_retrieve_data.py
 =======
     #retrieve_data()
     #preprocess_data()
