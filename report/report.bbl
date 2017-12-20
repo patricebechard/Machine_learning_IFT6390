@@ -1,10 +1,44 @@
 \begin{thebibliography}{}
 
-\bibitem[Ball et~al., 2006]{ball2006robust}
-Ball, N.~M., Brunner, R.~J., Myers, A.~D., and Tcheng, D. (2006).
-\newblock Robust machine learning applied to astronomical data sets. i.
-  star-galaxy classification of the sloan digital sky survey dr3 using decision
-  trees.
-\newblock {\em The Astrophysical Journal}, 650(1):497.
+\bibitem[Bailer-Jones et~al., 1998]{bailer1998automated}
+Bailer-Jones, C.~A., Irwin, M., and Von~Hippel, T. (1998).
+\newblock Automated classification of stellar spectra?ii. two-dimensional
+  classification with neural networks and principal components analysis.
+\newblock {\em Monthly Notices of the Royal Astronomical Society},
+  298(2):361--377.
+
+\bibitem[Bu et~al., 2014]{bu2014stellar}
+Bu, Y., Chen, F., and Pan, J. (2014).
+\newblock Stellar spectral subclasses classification based on isomap and svm.
+\newblock {\em New Astronomy}, 28:35--43.
+
+\bibitem[Carricajo et~al., 2004]{carricajo2004automatic}
+Carricajo, I., Manteiga, M., Rodr{\'\i}guez, A., and Dafonte, C. (2004).
+\newblock Automatic classification of stellar spectra.
+\newblock {\em Lecture Notes and Essays in Astrophysics}, 1:153--164.
+
+\bibitem[H{\'a}la, 2014]{hala2014spectral}
+H{\'a}la, P. (2014).
+\newblock Spectral classification using convolutional neural networks.
+\newblock {\em arXiv preprint arXiv:1412.8341}.
+
+\bibitem[Rajpurkar et~al., 2017]{rajpurkar2017cardiologist}
+Rajpurkar, P., Hannun, A.~Y., Haghpanahi, M., Bourn, C., and Ng, A.~Y. (2017).
+\newblock Cardiologist-level arrhythmia detection with convolutional neural
+  networks.
+\newblock {\em arXiv preprint arXiv:1707.01836}.
+
+\bibitem[Shensheng~Xu et~al., 2017]{shensheng2017deep}
+Shensheng~Xu, S., Mak, M.-W., and Cheung, C.-C. (2017).
+\newblock Deep neural networks versus support vector machines for ecg
+  arrhythmia classification.
+\newblock In {\em Multimedia \& Expo Workshops (ICMEW), 2017 IEEE International
+  Conference on}, pages 127--132. IEEE.
+
+\bibitem[Zihlmann et~al., 2017]{zihlmann2017convolutional}
+Zihlmann, M., Perekrestenko, D., and Tschannen, M. (2017).
+\newblock Convolutional recurrent neural networks for electrocardiogram
+  classification.
+\newblock {\em arXiv preprint arXiv:1710.06122}.
 
 \end{thebibliography}

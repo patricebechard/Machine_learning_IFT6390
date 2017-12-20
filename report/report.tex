@@ -91,11 +91,11 @@
 % Introduction
 \section{Introduction}
 
-L'aspect principal du projet consiste en la classification d'étoiles en fonction de leur type spectral. L'exploration de notre univers observable a en effet amené les astrophysiciens à observer et à catégoriser des centaines de milliers d'étoiles en fonction notamment de leur taille, de leur masse, de leur température et de leur composition. Ce processus de classification se fait, entre autre, à partir du spectre d'absorption des étoiles, c'est-à-dire une mesure de l'intensité du spectre électromagnétique émis par celles-ci en fonction de la longueur d'onde.
+L'aspect principal du projet consiste en la classification d'étoiles en fonction de leur type spectral à l'aide d'algorithmes d'apprentissage. L'exploration de notre univers observable a en effet amené les astrophysiciens à observer et à catégoriser des centaines de milliers d'étoiles en fonction notamment de leur taille, de leur masse, de leur température et de leur composition. Ce processus de classification se fait, entre autre, à partir du spectre d'absorption des étoiles, c'est-à-dire une mesure de l'intensité du spectre électromagnétique émis par celles-ci en fonction de la longueur d'onde. Pour la validation des algorithmes, des données d'électrocardiogramme, étant aussi des données corrélées en 1 dimension, seront utilisées. Les algorithmes d'apprentissage utilisés pour effectuer la classification sont les réseaux de neurones de type MLP, les réseaux de neurones convolutifs ainsi que les machines à vecteur de support. Les bases de données ainsi que les algorithmes d'apprentissages utilisés sont présentés en détails à la section \ref{sec:methods} et les résultats obtenus sont présentés à la section \ref{sec:results}. Les codes et les figures présentées pour l'ensemble du projet sont disponibles en ligne sur GitHub : \url{https://github.com/patricebechard/Machine_learning_IFT6390}.
 
 
 % Presentation des algorithmes et bases de donnees
-\section{Méthodes}
+\section{Méthodes}\label{sec:methods}
 
 Les données utilisées pour les spectres d'étoiles proviennent de la base de données \textit{Sloan Digital Sky Survey} (SDSS) \textit{Science Archive Server} (SAS) donnant gratuitement accès aux observations faites par différents télescopes. Il est évidemment nécessaire de traiter les spectres obtenus par le biais du SDSS, ceux-ci étant généralement très bruités. Un processus lissage et de normalisation permet d'en extraire l'information pertinente en éliminant le plus possible le bruit et en ne conservant que ce qui semble correspondre à des tendances plus globales. De plus, chaque spectre a été tronqué de sorte que seul le flux correspondant aux log-longueurs d'onde entre $3.65$ et $3.80$ (correspondant aux longueurs d'onde entre $\approx 398.1$ nm jusqu'à $\approx 707.9$ nm, ce qui représente le spectre de lumière visible). Finalement, une interpolation linéaire de points a permis de diminuer le nombre de traits caractéristiques à 1000, ce que les algorithmes peuvent manipuler sans problème. Un échantillon de 10000 étoiles pour chaque 6 types spectral différent utilisé (A, F, G, K, M, WD) a été traité. Puisque ces spectres sont les seules entrées des algorithmes essayés, le traitement des données a un impact majeur sur les résultats.  La figure \ref{fig:preprocessing_sdss} présente un exemple d'un spectre d'étoile avant et après avoir traiter les données.
 
@@ -108,24 +108,64 @@ Les données utilisées pour les spectres d'étoiles proviennent de la base de donn
  \begin{minipage}{0.45\textwidth}
    \includegraphics[width=\linewidth]{figures/sdss_norm.png}
  \end{minipage}\
- \caption{Effect of preprocessing on raw star spectras}\label{fig:preprocessing_sdss}
+ \caption{Effet du prétraitement des spectres d'étoiles. À gauche, un exemple de données brutes fournies par le \textit{Sloan Digital Sky Survey} est présenté. À droite, le même exemple a été normalisé et lissé.}\label{fig:preprocessing_sdss}
 \end{figure}
 
 
 
-Une première validation des algorithmes est effectuée par le biais d'une tâche connexe, soit la classification d'électrocardiogrammes selon l'état de santé du patient duquel il provient. Les électrocardiogrammes (ECG) étant fort semblables dans leurs formes à des spectres d'étoiles (tous deux étant des données corrélées dans l'espace en 1 dimension), ceci permet un premier ajustement des algorithmes en plus de nous initier au fonctionnement de ceux-ci dans le contexte d'une analyse spectroscopique. Les électrocardiogrammes qui utilisés proviennent du \textit{PhysioNet/Computing in Cardiology Challenge 2017} et ont l'avantage d'être plus simple à analyser, puisqu'ils sont plus lisses et moins bruités. Une séquence de 10 secondes a été conservée pour chaque ECG et les séquences ont été classées en 2 catégories, soit un patient en santé (5050 exemples), soit un patient avec une arythmie ou un autre problème cardiaque (3478 exemples). Le nombre de traits caractéristiques pour cet ensemble de données est de 500 pour chaque exemple.
+Une première validation des algorithmes est effectuée par le biais d'une tâche connexe, soit la classification d'électrocardiogrammes selon l'état de santé du patient duquel il provient. Les électrocardiogrammes (ECG) étant fort semblables dans leurs formes à des spectres d'étoiles (tous deux étant des données corrélées dans l'espace en 1 dimension), ceci permet un premier ajustement des algorithmes en plus de nous initier au fonctionnement de ceux-ci dans le contexte d'une analyse spectroscopique. Les électrocardiogrammes qui utilisés proviennent du \textit{PhysioNet/Computing in Cardiology Challenge 2017} et ont l'avantage d'être plus simple à analyser, puisqu'ils sont plus lisses et moins bruités. Une séquence de 10 secondes a été conservée pour chaque ECG et les séquences ont été classées en 2 catégories, soit un patient en santé (5050 exemples), soit un patient avec une arythmie ou un autre problème cardiaque (3478 exemples). Le nombre de traits caractéristiques pour cet ensemble de données est de 300 pour chaque exemple.
 
-Trois familles d'algorithmes seront étudiées dans le cadre de ce projet. Tout d'abord, nous utiliserons des réseaux de neurones multicouches de type perceptron. L'usage de librairies telles Keras ou TensorFlow rend très simple l'implémentation de ce type d'algorithme. Le réseau créé prendra en entrée un spectre traité (centré, réduit et lissé) et retournera en sortie la classification du spectre selon un encodage \textit{onehot}. Le nombre ainsi que la taille des couches cachées sont des hyperparamètres qu'il faudra déterminer.
+Trois familles d'algorithmes seront étudiées dans le cadre de ce projet. Tout d'abord, nous utiliserons des réseaux de neurones multicouches de type perceptron. L'usage de librairies telles Keras ou TensorFlow rend très simple l'implémentation de ce type d'algorithme. Le réseau créé prendra en entrée un spectre traité (centré, réduit et lissé) et retournera en sortie la classification du spectre selon un encodage \textit{onehot}. La méthodologie utilisée pour ajuster les hyperparamètres (nombre de couches cachées, nombre de neurones dans chaque couche, régularisation, taille des lots) consiste à faire un \textit{grid search} sur plusieurs architectures de réseaux ainsi que plusieurs types de régularisation et plusieurs tailles de lots pour trouver une ou plusieurs combinaisons prometteuses en mesurant l'erreur de classification sur l'ensemble de validation. Un processus de \textit{fine tuning} des paramètres suivait ensuite pour améliorer le plus possible l'efficacité de l'algorithme. Finalement, un réentraînement sur l'ensemble d'entraînement ainsi que l'ensemble de validation avait lieu, accompagné d'un test sur l'ensemble de test nous a permis d'obtenir les résultats finaux. Une présentation en détails des résultats obtenus est faite à la section \ref{sec:results}. L'utilisation d'un processeur graphique (GPU) nous a permis d'effectuer une panoplie de différentes expériences sans que celles-ci soient trop coûteuses en temps. Des travaux similaires ont été conduits par \cite{bailer1998automated} ainsi que \cite{carricajo2004automatic} pour les spectres stellaires, et par \cite{shensheng2017deep} pour les électrocardiogrammes.
 
-Ensuite, puisque les points formant un spectre sont corrélés entre eux, les réseaux de neurones convolutifs sont une approche qui semble prometteuse. Le réseau créé calculera des convolutions unidimensionnelles à partir des données. Le nombre de convolutions, de filtres ainsi que le type de \textit{pooling} (max, moyen, etc.) souhaités restent à déterminer.
+Ensuite, puisque les points formant un spectre sont corrélés entre eux, les réseaux de neurones convolutifs sont une approche qui semble prometteuse. Le réseau créé calculera des convolutions unidimensionnelles à partir des données. Le nombre de convolutions, de filtres ainsi que le type de \textit{pooling} (max, moyen, etc.) souhaités sont les hyperparamètres à déterminer. Ce type d'algorithme permet de réduire le nombre de dimensions du problème en plus de prendre en compte des caractéristiques des entrées comme la connectivité locale des traits caractéristiques, tout en introduisant une invariance des traductions locales grâce au \textit{pooling}. \cite{hala2014spectral} a conduit des travaux similaires pour les spectres d'étoiles. Plusieurs travaux de recherche, notamment par \cite{rajpurkar2017cardiologist} ainsi que \cite{zihlmann2017convolutional} se sont penchés sur la classification d'électrocardiogrammes à l'aide de réseaux de neurones convolutifs.
 
-Enfin, un arbre de décision sera construit afin de classer les spectres. Cette approche est similaire à celle conduite par \cite{ball2006robust}, qui visait à classifier des objets célestes en catégories plus grandes (étoile, galaxie ou QSO) à l'aide d'arbres de décision .
+Enfin, les machines à vecteur de support (SVM) seront le dernier type d'algorithme d'apprentissage utilisé pour la classification des spectres stellaires ainsi que des électrocardiogrammes.
 
+%%%TODO
+TODO : Expliquer SVM
+
+Des travaux similaires ont été conduits par \cite{bu2014stellar} pour la classification de spectres d'étoile et par \cite{shensheng2017deep} pour les électrocardiogrammes.
 
 
 % Resultats
-\section{Résultats}
 
+\section{Résultats}\label{sec:results}
+
+\subsection{Électrocardiogrammes}
+
+\begin{table*}[htb]
+  \caption{Résultats pour la classification d'électrocardiogrammes}
+  \label{tab:ecg_table}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    Algorithme     & Erreur de classification (Entraînement)     & Erreur de classification (Test) \\
+    \midrule
+    Arbre de décision & Input terminal  & $\sim$100     \\
+    MLP     & Output terminal & $\sim$10      \\
+    CNN    & Cell body       & up to $10^6$  \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\subsection{Spectres d'étoiles}
+
+\begin{table}[htb]
+  \caption{Résultats pour la classification de spectres d'étoiles}
+  \label{tab:star_table}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \multicolumn{2}{c}{Part}                   \\
+    \cmidrule{1-2}
+    Name     & Description     & Size ($\mu$m) \\
+    \midrule
+    Dendrite & Input terminal  & $\sim$100     \\
+    Axon     & Output terminal & $\sim$10      \\
+    Soma     & Cell body       & up to $10^6$  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 % Discussion et conclusion
 \section{Discussion}

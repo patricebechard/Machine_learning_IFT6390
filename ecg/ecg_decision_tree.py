@@ -22,6 +22,21 @@ classifier = DecisionTreeClassifier(random_state=0)
 x_train = training_set[:,:-1]
 y_train = training_set[:,-1]
 
-score = cross_val_score(classifier, x_train, y_train, cv=10)
+classifier.fit(x_train, y_train)
 
-print(score)
+score = 0
+
+for i in range(len(valid_set)):
+    label = valid_set[i, -1]
+    prediction = classifier.predict(valid_set[i:i+1,:-1], -1)
+
+    if label == prediction:
+        score += 1
+
+accuracy = score / len(valid_set)
+
+print("Accuracy : %f"%accuracy)
+
+#score = cross_val_score(classifier, x_train, y_train, cv=10)
+
+#print(score)
