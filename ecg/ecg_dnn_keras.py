@@ -18,28 +18,19 @@ import matplotlib.pyplot as plt
 import sys
 
 np.random.seed(69)
-<<<<<<< HEAD
+
 N_IN = 300
 N_OUT = 2
 n_epochs = 10
-log_dict = {}
-=======
-N_IN = 500
-N_OUT = 2
-n_epochs = 50
->>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
 
 def convert_to_onehot(labels, n_classes):
-    new_labels = np.zeros((len(labels), n_classes))
-    for i in range(len(labels)):
-        new_labels[i, labels[i]] = 1
-    return new_labels
+    return np.eye(n_classes)[labels]
 
 def train_model(training_set, valid_set, hidden_units,
                 n_epochs=250, batch_size=10, n_prints=25,
                 actv='relu', optimizer='adam', reg=0.0001,
                 regtype = None):
-    
+
     if regtype == 'l1':
         regularizer = regularizers.l1(reg)
     elif regtype == 'l2':
@@ -76,12 +67,8 @@ def train_model(training_set, valid_set, hidden_units,
 
     print("\nArchitecture of hidden layers : %s" % str(hidden_units))
 
-
-<<<<<<< HEAD
     train_error = []
     test_error = []
-=======
->>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
 
     for i in range(n_prints):
 
@@ -97,7 +84,6 @@ def train_model(training_set, valid_set, hidden_units,
         model.fit(X_train, Y_train, epochs=n_epochs//n_prints,
                   batch_size=batch_size, verbose=0)
 
-<<<<<<< HEAD
         train_error.append(1 - scores_train[1])
         test_error.append(1 - scores_test[1])
 
@@ -105,14 +91,11 @@ def train_model(training_set, valid_set, hidden_units,
         model.fit(X_train, Y_train, epochs=1,
                   batch_size=batch_size, verbose=0)
 
-=======
->>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
     print("\nResults")
     print("Train %s: %.2f%%" % (model.metrics_names[1],
                                   scores_train[1]*100))
     print("Valid %s: %.2f%%" % (model.metrics_names[1],
                                   scores_test[1]*100))
-<<<<<<< HEAD
 
     train_error.append(1 - scores_train[1])
     test_error.append(1 - scores_test[1])
@@ -122,8 +105,6 @@ def train_model(training_set, valid_set, hidden_units,
 
 
     archstr = str(hidden_units).strip('[]').replace(' ','_').replace(',','')
-=======
->>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
 
     case_str = "ecg_%s_%s_%f"%(archstr, regtype, reg)
     case_str_train = "ecg_train_%s_%s_%f"%(archstr, regtype, reg)
@@ -141,10 +122,6 @@ def train_model(training_set, valid_set, hidden_units,
 
     np.savetxt("log/%s.txt"%(case_str_train), train_error)
     np.savetxt("log/ecg_%s.txt"%(case_str_test), test_error)
-    
-    log_dict[case_str_train] = (1-scores_train[1])
-    log_dict[case_str_test] = (1-scores_test[1])
-    
 
 # ----------------------------MAIN-----------------------------------------
 
@@ -158,8 +135,7 @@ for line in hidden_units_file:
 
     hidden_units = line.strip().split(',')
     hidden_units = list(map(int, hidden_units))
-<<<<<<< HEAD
-    
+
     regs = [0., 0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005, 0.00001]
     regtypes = ['l1', 'l2', 'l1l2']
 
@@ -169,14 +145,3 @@ for line in hidden_units_file:
             train_model(training_set, valid_set, hidden_units,
                         n_epochs=n_epochs, n_prints=n_epochs, reg=reg,
                         regtype=regtype)
-            
-logfile = open('log.txt','w')
-logfile.write(str(log_dict).strip('{}').replace(', ','\n'))
-logfile.close()
-=======
-
-    train_model(training_set, valid_set, hidden_units,
-                n_epochs=n_epochs, n_prints=5)
->>>>>>> 01e5469d22c64a931ca1ca2b15d2c9f8159ae516
-
-
