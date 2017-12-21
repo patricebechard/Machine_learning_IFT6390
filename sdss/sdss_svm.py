@@ -10,48 +10,61 @@ SVM implementation for ecg classification
 """
 
 from sklearn import svm
+from sklearn.decomposition import PCA
 import numpy as np
 import sys
+import datasets
 
 np.random.seed(69)
+n_classes = 6
 
-N_OUT = 6
+def preprocessing_PCA(training, valid, test, n_components):
+    print("Number of principal components : %d"%n_components)
 
+    if n_components == 0:
+        #no pca preprocessing
+        return training, valid, test
 
-def onehot(labels, n_classes):
-    return np.eye(n_classes)[labels]
+    pca = PCA(n_components=n_components)
+    training.features = pca.fit_transform(training.features)
+    valid.features = pca.fit_transform(valid.features)
+    test.features = pca.fit_transform(test.features)
 
-training_set = np.loadtxt("data/sdss.train", delimiter=',')
-valid_set = np.loadtxt("data/sdss.valid", delimiter=',')
-test_set = np.loadtxt("data/sdss.test", delimiter=',')
+    return training, valid, test
 
-X_train = training_set[:,:-1]
-Y_train = training_set[:,-1].astype('int')
+def fit_svm(training, valid, test, kernel='rbf', C=1.0):
 
-X_valid = valid_set[:,:-1]
-Y_valid = valid_set[:,-1].astype('int')
-
-X_test = test_set[:,:-1]
-Y_test = test_set[:,-1].astype('int')
-
-kernels = ['linear', 'rbf', 'poly', 'sigmoid']
-for kernel in kernels :
     print('\nKernel : %s'%kernel)
+    print('Penalty parameter C : %.3f'%(C))
 
-    classifier = svm.SVC(decision_function_shape='ovo', kernel=kernel)
-    classifier.fit(X_train, Y_train)
+    classifier = svm.SVC(kernel=kernel, C=C)
+    classifier.fit(training.features, training.labels)
 
-    train_pred = classifier.predict(X_train)
-    valid_pred = classifier.predict(X_valid)
-    test_pred = classifier.predict(X_test)
+    train_pred = classifier.predict(training.features)
+    valid_pred = classifier.predict(valid.features)
+    test_pred = classifier.predict(test.features)
 
-    train_accuracy = 1 - np.sum(train_pred == Y_train) / len(Y_train)
-    valid_accuracy = 1 - np.sum(valid_pred == Y_valid) / len(Y_valid)
-    test_accuracy = 1 - np.sum(test_pred == Y_test) / len(Y_test)
+    train_accuracy = np.sum(train_pred == training.labels) / len(training.labels)
+    valid_accuracy = np.sum(valid_pred == valid.labels) / len(valid.labels)
+    test_accuracy = np.sum(test_pred == test.labels) / len(test.labels)
 
     print("Training accuracy   : %.2f%%"%(train_accuracy * 100))
     print("Validation accuracy : %.2f%%"%(valid_accuracy * 100))
     print("Test accuracy       : %.2f%%"%(test_accuracy * 100))
+
+for n in [0, 20, 40, 60, 80, 100, 150, 200, 250, 500]:
+
+    training = datasets.training()
+    valid = datasets.valid()
+    test = datasets.test()
+
+    training, valid, test = preprocessing_PCA(training, valid, test,
+                                              n_components=n)
+    #training, valid, test = preprocessing_fourier(training, valid, test,
+    #                                              n_features=n)
+
+    fit_svm(training, valid, test)
+
 
 
 """
