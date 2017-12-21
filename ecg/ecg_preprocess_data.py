@@ -12,6 +12,8 @@ data from : https://physionet.org/challenge/2017/
 
 import numpy as np
 from scipy.io import loadmat
+from sklearn.decomposition import PCA
+from numpy.fft import fft
 
 import matplotlib.pyplot as plt
 from urllib.request import urlretrieve
@@ -111,7 +113,7 @@ def print_example():
     print(np.bincount(labels))
     print(labels)
     exit()
-   
+
 
     # loading data from every .mat file
     for i in range(datafiles.shape[0]):
@@ -132,8 +134,6 @@ def print_example():
         x_interp = np.linspace(0, N_PTS, N_FEATURES)
         # Reducing number of features
         features = np.interp(x_interp, np.arange(N_PTS), features)
-
-        datafiles[i,1] = datafiles[i,1].translate(transtab)
 
         plt.plot(features)
         plt.savefig('ecg_norm.png')
@@ -169,9 +169,177 @@ def print_example():
     np.savetxt('data/ecg.valid', features_table[lim1:lim2], delimiter=',',fmt=fmt)
     np.savetxt('data/ecg.test', features_table[lim2:], delimiter=',',fmt=fmt)
 
+def preprocess_PCA():
 
+    #normalize data
+
+    #crop data
+
+    #transform using PCA
+
+    datafiles = np.genfromtxt(DATADIR + '/REFERENCE.csv',
+                         dtype='str', delimiter=',')
+
+    #translating letter labels to int labels (normal or abnormal only)
+    intab = 'NAO~'
+    outtab = '0111'
+    transtab = str.maketrans(intab, outtab)
+
+    first = True
+
+    for i in range(datafiles.shape[0]):
+        path = DATADIR + '/' + datafiles[i,0] + '.mat'
+
+        #not working anymore for an obscure reason
+        features = loadmat(path)
+        features = features['val'][0].astype('float32')
+
+        if len(features) < 8500:
+            datafiles[i,1] = -1
+            continue
+
+        features = features[:8500]
+        features = features / np.std(features)  #dividing by std dev
+
+        datafiles[i,1] = datafiles[i,1].translate(transtab)
+
+
+        # putting everything in the same array
+        if first:
+            first = False
+            features_table = np.expand_dims(features, axis=0)
+        else:
+            features_table = np.append(features_table,
+                                       np.expand_dims(features, axis=0),
+                                       axis=0)
+
+        if i % 100 == 0 and i != 0:
+            print("Progress : %d of %d files processed"
+                  % (i, datafiles.shape[0]))
+
+    #adding labels
+    datafiles = datafiles[:,-1].astype('float')
+    datafiles = datafiles[datafiles>=0]
+    datafiles = np.expand_dims(datafiles, axis=1)
+
+    features_table = np.append(features_table, datafiles, axis=1)
+    features_table = features_table.astype(np.float32)
+
+    np.random.shuffle(features_table)                   #shuffle data
+
+    n_components_list = [20, 50, 100,  200, 500]
+
+    for n_components in n_components_list:
+
+        print("Number of principal components : %d"%n_components)
+
+        labels = features_table[:,-1:]
+
+        pca = PCA(n_components=n_components)
+        temp = pca.fit_transform(features_table[:,:-1]) #without labels
+
+        temp = np.append(temp, labels, axis=1)
+
+
+        # Splitting data in 3 distinct sets (training, valid, test)
+        lim1 = 2 * temp.shape[0] // 3
+        lim2 = 5 * temp.shape[0] // 6
+
+        fmt = ['%.18e' for i in range(N_FEATURES)]
+        fmt.append('%d')
+
+        np.savetxt('data/ecg_pca_%d.train'%n_components, temp[:lim1],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg._pca_%dvalid'%n_components, temp[lim1:lim2],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg_pca_%d.test'%n_components, temp[lim2:],
+                   delimiter=',',fmt=fmt)
+
+def preprocess_fourier():
+
+    datafiles = np.genfromtxt(DATADIR + '/REFERENCE.csv',
+                         dtype='str', delimiter=',')
+
+    #translating letter labels to int labels (normal or abnormal only)
+    intab = 'NAO~'
+    outtab = '0111'
+    transtab = str.maketrans(intab, outtab)
+
+    # loading data from every .mat file
+
+    first = True
+
+    for i in range(datafiles.shape[0]):
+        path = DATADIR + '/' + datafiles[i,0] + '.mat'
+
+        #not working anymore for an obscure reason
+        features = loadmat(path)
+        features = features['val'][0].astype('float32')
+
+        if len(features) < 8500:
+            datafiles[i,1] = -1
+            continue
+
+        features = features[:8500]
+        features = features / np.std(features)  #dividing by std dev
+
+        datafiles[i,1] = datafiles[i,1].translate(transtab)
+
+
+        # putting everything in the same array
+        if first:
+            first = False
+            features_table = np.expand_dims(features, axis=0)
+        else:
+            features_table = np.append(features_table,
+                                       np.expand_dims(features, axis=0),
+                                       axis=0)
+
+        if i % 100 == 0 and i != 0:
+            print("Progress : %d of %d files processed"
+                  % (i, datafiles.shape[0]))
+
+    #adding labels
+    datafiles = np.expand_dims(datafiles[:,-1], axis=1)
+    print(len(datafiles))
+    datafiles = datafiles[datafiles>=0]
+    print(len(datafiles))
+
+    features_table = np.append(features_table, datafiles, axis=1)
+    features_table = features_table.astype(np.float32)
+
+    np.random.shuffle(features_table)                   #shuffle data
+
+    n_components_list = [20, 50, 100,  200, 500, 1000, 2000, 5000]
+
+    for n_components in n_components_list:
+
+        print("Number of Fourier components : %d"%n_components)
+
+        labels = features_table[:,-1:]
+
+        temp = fft(features_table, axis=1, n=n_components)
+
+        temp = np.append(temp, labels, axis=1)
+
+
+        # Splitting data in 3 distinct sets (training, valid, test)
+        lim1 = 2 * temp.shape[0] // 3
+        lim2 = 5 * temp.shape[0] // 6
+
+        fmt = ['%.18e' for i in range(N_FEATURES)]
+        fmt.append('%d')
+
+        np.savetxt('data/ecg_pca_%d.train'%n_components, temp[:lim1],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg._pca_%dvalid'%n_components, temp[lim1:lim2],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg_pca_%d.test'%n_components, temp[lim2:],
+                   delimiter=',',fmt=fmt)
 
 if __name__ == "__main__":
     #retrieve_data()
     #preprocess_data()
-    print_example()
+    #print_example()
+    preprocess_PCA()
+    preprocess_fourier()

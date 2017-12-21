@@ -17,10 +17,23 @@ Carricajo, I., Manteiga, M., Rodr{\'\i}guez, A., and Dafonte, C. (2004).
 \newblock Automatic classification of stellar spectra.
 \newblock {\em Lecture Notes and Essays in Astrophysics}, 1:153--164.
 
+\bibitem[Gothwal et~al., 2011]{gothwal2011cardiac}
+Gothwal, H., Kedawat, S., and Kumar, R. (2011).
+\newblock Cardiac arrhythmias detection in an ecg beat signal using fast
+  fourier transform and artificial neural network.
+\newblock {\em Journal of Biomedical Science and Engineering}, 4(04):289.
+
 \bibitem[H{\'a}la, 2014]{hala2014spectral}
 H{\'a}la, P. (2014).
 \newblock Spectral classification using convolutional neural networks.
 \newblock {\em arXiv preprint arXiv:1412.8341}.
+
+\bibitem[Polat and G{\"u}ne{\c{s}}, 2007]{polat2007detection}
+Polat, K. and G{\"u}ne{\c{s}}, S. (2007).
+\newblock Detection of ecg arrhythmia using a differential expert system
+  approach based on principal component analysis and least square support
+  vector machine.
+\newblock {\em Applied Mathematics and Computation}, 186(1):898--906.
 
 \bibitem[Rajpurkar et~al., 2017]{rajpurkar2017cardiologist}
 Rajpurkar, P., Hannun, A.~Y., Haghpanahi, M., Bourn, C., and Ng, A.~Y. (2017).
