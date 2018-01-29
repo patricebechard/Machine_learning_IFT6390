@@ -45,12 +45,12 @@ def preprocessing_fourier(training, valid, test, n_features = 500):
     return training, valid, test
 
 
-def fit_svm(training, valid, test, kernel='rbf', C=1.0):
+def fit_svm(training, valid, test, kernel='rbf', C=10):
 
     print('\nKernel : %s'%kernel)
     print('Penalty parameter C : %.3f'%(C))
 
-    classifier = svm.SVC(kernel=kernel, C=C)
+    classifier = svm.SVC(kernel=kernel, C=C, verbose=True)
     classifier.fit(training.features, training.labels)
 
     train_pred = classifier.predict(training.features)
@@ -65,18 +65,25 @@ def fit_svm(training, valid, test, kernel='rbf', C=1.0):
     print("Validation accuracy : %.2f%%"%(valid_accuracy * 100))
     print("Test accuracy       : %.2f%%"%(test_accuracy * 100))
 
+
+    print(np.bincount(test_pred))
+    print(np.bincount(test.labels))
+
 #for n in [20, 40, 60, 80, 100, 150, 200, 250, 500]:
 
-for c in [0.01, 0.05, 0.1, 0.5, 1., 5., 10., 50., 100.]:
-    training = datasets.training()
-    valid = datasets.valid()
-    test = datasets.test()
+#for c in [0.01, 0.05, 0.1, 0.5, 1., 5., 10., 50., 100.]:
+training = datasets.training()
+valid = datasets.valid()
+test = datasets.test()
 
-    #training, valid, test = preprocessing_PCA(training, valid, test, n_components)
-    #training, valid, test = preprocessing_fourier(training, valid, test,
-    #                                              n_features=n)
+print("shape :")
+print(training.features.shape)
 
-    fit_svm(training, valid, test, C=c)
+#training, valid, test = preprocessing_PCA(training, valid, test, n_components)
+#training, valid, test = preprocessing_fourier(training, valid, test,
+#                                              n_features=n)
+
+fit_svm(training, valid, test)
 
 """
 Results
@@ -186,5 +193,42 @@ Preprocessing data with Fourier transform. n_features = 500
 Training accuracy   : 100.00%
 Validation accuracy : 63.19%
 Test accuracy       : 58.58%
+
+"""
+
+
+"""
+pca on long data thing
+
+n_components : 20
+Training accuracy   : 100.00%
+Validation accuracy : 60.93%
+Test accuracy       : 59.43%
+
+n_components : 50
+Training accuracy   : 100.00%
+Validation accuracy : 60.77%
+Test accuracy       : 59.43%
+
+n_components : 50
+Training accuracy   : 100.00%
+Validation accuracy : 60.69%
+Test accuracy       : 59.43%
+
+n_components : 100
+Training accuracy   : 100.00%
+Validation accuracy : 60.77%
+Test accuracy       : 59.43%
+
+n_components : 200
+Training accuracy   : 100.00%
+Validation accuracy : 60.77%
+Test accuracy       : 59.43%
+
+
+n_components : 200
+Training accuracy   : 100.00%
+Validation accuracy : 60.77%
+Test accuracy       : 59.43%
 
 """

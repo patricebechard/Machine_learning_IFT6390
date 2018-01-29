@@ -1,0 +1,441 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2017
+%
+% to avoid loading the natbib package, add option nonatbib:
+% \usepackage[nonatbib]{nips_2017}
+
+\usepackage[final]{nips_2017}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+% \usepackage[final]{nips_2017}
+
+%Pour langue et caractÃšres spÃ©ciaux
+\usepackage[french]{babel} 
+\usepackage[T1]{fontenc}
+%\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+
+%\usepackage[utf8]{inputenc} % allow utf-8 input
+%\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{amsmath}
+
+
+\title{Sur la classification d'Ã©toiles en fonction de leur spectre d'absorption par apprentissage automatique}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+\author{
+  Patrice~B\'echard\\
+  D\'epartement d'informatique\\
+  et de recherche op\'erationelle\\
+  Universit\'e de Montr\'eal\\
+  Montr\'eal, QC H3T 1J4 \\
+  \texttt{patrice.bechard@umontreal.ca} \\
+  %% examples of more authors
+  \And
+  Jean-Pascal~Gu\'evin \\
+  D\'epartement de math\'ematiques\\
+  et de statistique \\
+  Universit\'e de Montr\'eal\\
+  Montr\'eal, QC H3T 1J4 \\
+  \texttt{jean-pascal.guevin@umontreal.ca} \\
+  %% \AND
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+  %% \And
+  %% Coauthor \\
+  %% Affiliation \\
+  %% Address \\
+  %% \texttt{email} \\
+}
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+\vspace{-0.8cm}
+\begin{center}
+\textbf{IFT6390 - Fondements de l'apprentissage machine - \today}
+\end{center}
+
+\begin{abstract}
+La classification de spectres stellaires provenant du \textit{Sloan Digital Sky Survey} a été effectuée par trois algorithmes d'apprentissage, soit les machines à vecteurs de support, les réseaux de neurones de type perceptron multicouche et les réseaux de neurones convolutifs. Un taux de classification $93.40\%$ a été obtenu avec les SVM, $94.41\%$ avec les MLP et $94.57\%$ avec les CNN. Une tâche similaire a été conduite avec des données d'électrocardiogramme avec des résultats moins concluants. Les taux de classification obtenus sont de $61.36\%$ pour les SVM, $60.69\%$ pour les MLP et $77.39\%$ pour les CNN.
+\end{abstract}
+
+% Introduction
+\section{Introduction}
+
+L'exploration de notre univers observable a amenÃ© les astrophysiciens Ã  observer et Ã  catÃ©goriser des centaines de milliers d'Ã©toiles en fonction notamment de leur taille, de leur masse, de leur tempÃ©rature et de leur composition. Ce processus de classification se fait, entre autre, Ã  partir du spectre d'absorption des Ã©toiles qui est une mesure de l'intensitÃ© du spectre Ã©lectromagnÃ©tique Ã©mis par celles-ci en fonction de la longueur d'onde. Une automatisation efficace de ce processus pourrait par consÃ©quent Ãªtre un grand avantage. Nous proposons donc trois algorithmes de classification d'Ã©toiles en fonction de leur type spectral Ã  l'aide de mÃ©thodes d'apprentissage automatique.  Pour la validation des algorithmes, des donnÃ©es d'Ã©lectrocardiogramme, Ã©tant aussi des donnÃ©es corrÃ©lÃ©es en 1 dimension, seront utilisÃ©es. Les algorithmes d'apprentissage utilisÃ©s pour effectuer la classification sont les rÃ©seaux de neurones de type MLP, les rÃ©seaux de neurones convolutifs (CNN) ainsi que les machines Ã  vecteur de support (SVM) Ã  noyau souple. Les bases de donnÃ©es ainsi que les algorithmes d'apprentissages utilisÃ©s sont prÃ©sentÃ©s en dÃ©tails Ã  la section \ref{sec:methods} et les rÃ©sultats obtenus sont prÃ©sentÃ©s Ã  la section \ref{sec:results}. Les codes et les figures prÃ©sentÃ©es pour l'ensemble du projet sont disponibles en ligne sur GitHub : \url{https://github.com/patricebechard/Machine_learning_IFT6390}.
+
+
+% Presentation des algorithmes et bases de donnees
+\section{MÃ©thodes}\label{sec:methods}
+
+Les donnÃ©es utilisÃ©es pour les spectres d'Ã©toiles proviennent de la base de donnÃ©es \textit{Sloan Digital Sky Survey} (SDSS) \textit{Science Archive Server} (SAS) donnant gratuitement accÃšs aux observations faites par diffÃ©rents tÃ©lescopes. Il est Ã©videmment nÃ©cessaire de traiter les spectres obtenus par le biais du SDSS, ceux-ci Ã©tant gÃ©nÃ©ralement trÃšs bruitÃ©s. Un processus lissage et de normalisation utilisant notamment des moyennes mobiles permet d'en extraire l'information pertinente en Ã©liminant le plus possible le bruit et en ne conservant que ce qui semble correspondre Ã  des tendances plus globales. De plus, chaque spectre a Ã©tÃ© tronquÃ© de sorte que seul la section correspondant aux log-longueurs d'onde entre $3.65$ et $3.80$ -- correspondant aux longueurs d'onde entre $\approx 398.1$ nm jusqu'Ã  $\approx 707.9$ nm, ce qui reprÃ©sente le spectre de lumiÃšre visible -- a Ã©tÃ© conservÃ©. Nous avons aplati les spectres en ajustant une courbe de degrÃ© 3 aux donnÃ©es et divisÃ© par celle-ci. Finalement, une interpolation linÃ©aire de points a permis de diminuer le nombre de traits caractÃ©ristiques Ã  1000, ce que les algorithmes peuvent manipuler sans problÃšme. Un Ã©chantillon de 60000 Ã©toiles rÃ©parti Ã©galement pour 6 types spectral diffÃ©rents utilisÃ©s (A, F, G, K, M, WD) a Ã©tÃ© traitÃ©. Puisque ces spectres sont les seules entrÃ©es des algorithmes essayÃ©s, le prÃ©traitement des donnÃ©es a un impact majeur sur les rÃ©sultats. La figure \ref{fig:preprocessing_sdss} prÃ©sente un exemple d'un spectre d'Ã©toile avant et aprÃšs avoir subi le processus de prÃ©traitement. Ce processus est implÃ©mentÃ© par le module \texttt{XXXXXXXXX} qui permet Ã©galement d'extraire les donnÃ©es directement de SDSS.
+
+\begin{figure}[!htb]
+ \begin{minipage}{0.45\textwidth}
+   \includegraphics[width=\linewidth]{figures/sdss_raw.png}
+ \end{minipage}\
+ $\xRightarrow{\text{preprocessing}}$
+ \begin{minipage}{0.45\textwidth}
+   \includegraphics[width=\linewidth]{figures/sdss_norm.png}
+ \end{minipage}\
+ \caption{Effet du prÃ©traitement des spectres d'Ã©toiles. Ã gauche, un exemple de donnÃ©es brutes fournies par le \textit{Sloan Digital Sky Survey} est prÃ©sentÃ©. Ã droite, le mÃªme exemple a Ã©tÃ© normalisÃ© et lissÃ©.}\label{fig:preprocessing_sdss}
+\end{figure}
+
+Une premiÃšre validation des algorithmes est effectuÃ©e par le biais d'une tÃ¢che connexe, soit la classification d'Ã©lectrocardiogrammes selon l'Ã©tat de santÃ© du patient duquel il provient. Les Ã©lectrocardiogrammes (ECG) Ã©tant fort semblables dans leurs formes Ã  des spectres d'Ã©toiles (tous deux Ã©tant des donnÃ©es corrÃ©lÃ©es dans l'espace en 1 dimension), ceci permet un premier ajustement des algorithmes en plus de nous initier au fonctionnement de ceux-ci dans le contexte d'une analyse spectroscopique. Les Ã©lectrocardiogrammes utilisÃ©s proviennent du \textit{PhysioNet/Computing in Cardiology Challenge 2017} et ont l'avantage d'Ãªtre plus simple Ã  analyser, puisqu'ils sont plus lisses et moins bruitÃ©s. Une sÃ©quence de 10 secondes a Ã©tÃ© conservÃ©e pour chaque ECG et les sÃ©quences ont Ã©tÃ© classÃ©es en 2 catÃ©gories, soit un patient en santÃ© (5050 exemples), soit un patient avec une arythmie ou un autre problÃšme cardiaque (3478 exemples). Le nombre de traits caractÃ©ristiques pour cet ensemble de donnÃ©es est de 500 pour chaque exemple. Le prÃ©traitement des donnÃ©es est implÃ©mentÃ© par le module \texttt{XXXXXXX}.
+
+Trois familles d'algorithmes seront Ã©tudiÃ©es dans le cadre de ce projet. Tout d'abord, nous utiliserons des rÃ©seaux de neurones de type perceptron multicouche (MLP). L'usage de librairies telles Keras ou TensorFlow rend trÃšs simple l'implÃ©mentation de ce type d'algorithme. Le rÃ©seau crÃ©Ã© prendra en entrÃ©e un spectre traitÃ© (centrÃ©, rÃ©duit et lissÃ©) et retournera en sortie la classification du spectre selon un encodage \textit{onehot}. La mÃ©thodologie utilisÃ©e pour ajuster les hyperparamÃštres (nombre de couches cachÃ©es, nombre de neurones dans chaque couche, rÃ©gularisation, taille des lots) consiste Ã  faire un \textit{grid search} sur plusieurs architectures de rÃ©seaux ainsi que plusieurs types de rÃ©gularisation et plusieurs tailles de lots pour trouver une ou plusieurs combinaisons prometteuses en mesurant l'erreur de classification sur l'ensemble de validation. Un processus de \textit{fine tuning} des paramÃštres suivait ensuite pour amÃ©liorer le plus possible l'efficacitÃ© de l'algorithme. Finalement, un rÃ©entraÃ®nement sur l'ensemble d'entraÃ®nement ainsi que l'ensemble de validation avait lieu, accompagnÃ© d'un test sur l'ensemble de test nous a permis d'obtenir les rÃ©sultats finaux. Une prÃ©sentation en dÃ©tails des rÃ©sultats obtenus est faite Ã  la section \ref{sec:results}. L'utilisation d'un processeur graphique (GPU) nous a permis d'effectuer une panoplie de diffÃ©rentes expÃ©riences sans que celles-ci soient trop coÃ»teuses en temps. Des travaux similaires ont Ã©tÃ© menÃ©s par \cite{bailer1998automated} ainsi que \cite{carricajo2004automatic} pour les spectres stellaires, et par \cite{shensheng2017deep} pour les Ã©lectrocardiogrammes.
+
+Ensuite, puisque les points formant un spectre sont corrÃ©lÃ©s entre eux, les rÃ©seaux de neurones convolutifs (CNN) sont une approche d'apparence prometteuse. Le rÃ©seau crÃ©Ã© calculera des convolutions unidimensionnelles sur les spectres. Le nombre de convolutions, de \textit{feature maps} ainsi que le type de \textit{pooling} (max, moyen, etc.) souhaitÃ©s sont les hyperparamÃštres Ã  dÃ©terminer. Ce type d'algorithme permet de rÃ©duire le nombre de dimensions du problÃšme en plus de prendre en compte des caractÃ©ristiques des entrÃ©es comme la connectivitÃ© locale des traits caractÃ©ristiques, tout en introduisant une invariance des traductions locales grÃ¢ce au \textit{pooling}. \cite{hala2014spectral} a menÃ© des travaux similaires pour les spectres d'Ã©toiles. Plusieurs travaux de recherche, notamment par \cite{rajpurkar2017cardiologist} ainsi que \cite{zihlmann2017convolutional} se sont penchÃ©s sur la classification d'Ã©lectrocardiogrammes Ã  l'aide de rÃ©seaux de neurones convolutifs.
+
+Enfin, les machines Ã  vecteur de support (SVM) Ã  noyau souple seront le dernier type d'algorithme d'apprentissage utilisÃ© pour la classification des spectres stellaires ainsi que des Ã©lectrocardiogrammes. Ce genre d'algorithme a tendance Ã  bien se dÃ©brouiller avec des entrÃ©es possÃ©dant un grand nombre de traits caractÃ©ristiques. Le noyau Ã  utiliser sera dÃ©terminÃ© lors de la sÃ©lection du modÃšle. L'implÃ©mentation des SVM a Ã©tÃ© effectuÃ©e Ã  l'aide de la librairie Scikit Learn. Des travaux similaires ont Ã©tÃ© menÃ©s par \cite{bu2014stellar} pour la classification de spectres d'Ã©toile et par \cite{shensheng2017deep} pour les Ã©lectrocardiogrammes.
+
+
+
+% Resultats
+
+\section{PrÃ©sentation des rÃ©sultats}\label{sec:results}
+
+%%%%%%%%% ELECTROCARDIOGRAMMES
+\subsection{Ãlectrocardiogrammes}
+
+Contrairement Ã  ce Ã  quoi nous nous attendions, nous avons eu beaucoup plus de problÃšmes avec les donnÃ©es d'Ã©lectrocardiogramme qu'avec les donnÃ©es de spectres stellaires. Tout d'abord, pour les SVM, des tests ont Ã©tÃ© effectuÃ©s pour dÃ©terminer le noyau du SVM Ã  utiliser parmi ceux implÃ©mentÃ©s par dÃ©faut dans Scikit Learn. Nous avons conservÃ© le noyau mou de type polynomial (\texttt{poly}, $(\gamma\langle~x,~x'~\rangle~+~r)^d$) et un noyau Ã  fonction Ã  base radiale (\texttt{rbf}, ~$\exp(-\gamma||x-x'||_2 ^2)$). D'autres noyaux (linÃ©aire, sigmoid) ont Ã©galement Ã©tÃ© testÃ©s, mais le faible taux de succÃšs obtenu les ont rapidement discrÃ©ditÃ©s. L'effet de trois hyperparamÃštres a Ã©tÃ© Ã©tudiÃ© pour cet algorithme: le noyau utilisÃ©, le degrÃ© du polynÃŽme dans le cas d'un noyau polynomial et la valeur de la constante de rÃ©gularisation $C$ puisqu'il s'agit d'un \textit{soft kernel} SVM. La table~\ref{tab:ecg_preprocessing} montre les taux de classification obtenus pour ces hyperparamÃštres.
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme SVM pour les trois noyaux Ã©tudiÃ©s.}
+  \vspace{0.2cm}
+  \label{tab:ecg_preprocessing}
+  \centering
+  \begin{tabular}{lllllll}
+    \toprule
+    & \multicolumn{3}{c}{\sc{Ens. d'entraÃ®nement}} & \multicolumn{3}{c}{\sc{Ens. de validation}}\\
+    \sc{Noyau} & $C=0.75$ & $C=1.0$ & $C=1.25$ & $C=0.75$ & $C=1.0$ & $C=1.25$ \\
+    \midrule
+    RBF          & 74.42\% & 85.68\% & 91.24\% & 59.68\% & 60.24\% & 59.61\% \\
+    Poly. deg. 2 & 85.29\% & 89.45\% & 91.73\% & 61.08\% & 61.37\% & 60.94\% \\
+    Poly. deg. 3 & 93.39\% & 98.03\% & 98.84\% & 59.68\% & 58.13\% & 56.09\% \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+On note d'abord Ã  quel point cet algorithme appliquÃ© Ã  cet ensemble de donnÃ©es est Ã  risque de sur-apprentissage. En effet, pour chacun des noyaux, le taux classifications atteint $90\%$ et plus dÃšs que $C\geq1$. Pourtant, pour des valeurs de $C$ Ã  peine infÃ©rieure Ã  1, on est clairement en prÃ©sence de sous-apprentissage, d'autant plus que les matrices de confusions montrent que tous les Ã©lÃ©ments sont classÃ©s dans la mÃªme catÃ©gorie. L'Ã©troitesse de la fenÃªtre entre ces deux pÃŽles Ã  Ã©viter s'explique par la faible de taille de l'ensemble d'entraÃ®nement. Il apparaÃ®t Ã©vident que nous aurions davantage de latitude pour l'entraÃ®nement des paramÃštres si nous Ã©tions en possession d'un plus grand nombre de donnÃ©es. Des propositions permettant de contourner seront discutÃ©s Ã  la section~\ref{sec:conclusion}. Il est aussi pertinent de se questionner sur la validitÃ© du prÃ©traitement des donnÃ©es pour notre problÃšme.
+
+Une premiÃšre tentative de diminuer le risque de sur-apprentissage est d'utiliser la technique d'analyse des composantes principales (PCA) afin de diminuer la dimension des traits caractÃ©ristiques, similairement Ã  \cite{polat2007detection}. Les tables~\ref{tab:ecg_pca_300} et \ref{rab:ecg_pca_100} montrent les taux de classification obtenus lorsque les 300 et les 100 premiÃšres composantes principales sont conservÃ©es. L'hypothÃšse Ã©tait qu'une diminution du nombre de traits caractÃ©ristiques diminuerait le nombre de paramÃštre du SVM Ã©galement, ce qui devrait rÃ©sulter en une baisse de la capacitÃ© du SVM. Le mÃªme phÃ©nomÃšne que sans l'usage de PCA se produit cependant: on passe de sous-apprentissage Ã  sur-apprentissage sans que le taux de classification de l'ensemble de validation n'augmente.
+
+Une derniÃšre tentative d'amÃ©liorer les rÃ©sultats est d'appliquer aux donnÃ©es une transformÃ©e de Fourier. En effet, puisque les donnÃ©es reprÃ©sentent un signal, il pourrait Ãªtre avantageux d'Ã©tudier les frÃ©quences principales de ce signal plutÃŽt que le signal lui-mÃªme. Une dÃ©marche similaire a Ã©tÃ© conduite par \cite{gothwal2011cardiac} pour prÃ©traiter les entrÃ©es d'un rÃ©seau de neurones. La figure ~\ref{fig:ecg_val_c} en annexe montre les taux de classification obtenus pour le noyau polynomial de degrÃ© 2 pour diffÃ©rentes valeurs de $C$. Le ta table \ref{tab:ecg_fourier} montre le taux de classification pour les diffÃ©rents noyaux. L'exact mÃªme phÃ©nomÃšne se reproduit cependant: l'algorithme passe du sous-apprentissage au sur-apprentissage sans que l'erreur de classification de l'exemple de validation ne diminue. La figure~\ref{XXXXX} illustre cela: on y voit que le taux de bonnes classifications augmente pour l'ensemble d'entraÃ®nement, mais pas pour l'ensemble de validation.
+
+On conclue que le meilleur classeur SVM Ã  noyau \textit{soft} est celui envoyant tous les Ã©lectrocardiogrammes Ã  la mÃªme classe, ce qui est le cas pour le noyau polynomial de degrÃ© 2 et pour le noyau de type RBF pour $C=1$. C'est deux classeurs obtiennent des rÃ©sultats d'environ $60\%$ sur l'ensemble test, ce qui est seulement dÃ» Ã  la rÃ©partition des Ã©lectrocardiogrammes dans les classes sain et malade. Le rÃ©sultat d'un tel classeur aurait Ã©tÃ© de $50\%$ si les rÃ©partitions avaient Ã©tÃ© Ã©gales. On conclue que le SVM s'applique mal Ã  cet ensemble de donnÃ©es puisqu'il s'avÃšre incapable de gÃ©nÃ©raliser ses rÃ©sultats. Notons que l'implÃ©mentation du SVM pour les donnÃ©es ECG est effectuÃ©e dans \texttt{XXXXXX}
+
+Des rÃ©sultats similaires ont Ã©tÃ© obtenus avec les rÃ©seaux de neurones de type MLP. Pour l'ensemble des rÃ©seaux de neurones de ce rapport, l'optimiseur \textit{Adam} a Ã©tÃ© utilisÃ©, la fonction d'activation ReLU a Ã©tÃ© utilisÃ©e dans le rÃ©seau et la fonction softmax a Ã©tÃ© utilisÃ©e Ã  la sortie. AprÃšs un \textit{grid search} sur plusieurs architectures diffÃ©rentes, nous avons trouvÃ© une architecture de rÃ©seau possÃ©dant deux couches cachÃ©es de 250 et 100 neurones, respectivement. Nous avons utilisÃ© comme entrÃ©e des neurones les donnÃ©es prÃ©traitÃ©es normalement (normalisÃ©es) ainsi que les donnÃ©es aprÃšs y avoir effectuer une transformÃ©e de Fourier. Nous avons utilisÃ© un terme de rÃ©gularisation $\lambda$ de $0.0005$ pour une rÃ©gularisation de type $L1$ et $L2$. La courbe d'apprentissage en fonction du nombre d'Ã©poques est prÃ©sentÃ© Ã  la figure \ref{fig:ecg_dnn_train} en annexe. Comme on le voit, l'implÃ©mentation utilisant les donnÃ©es traitÃ©es par transformÃ©e de Fourier ont peine Ã  dÃ©passer $60\%$ de taux de classification, alors que celles utilisant les donnÃ©es normalisÃ©es atteignent Ã  peine $58\%$, alors qu'il classe tous les exemples dans la mÃªme catÃ©gorie. Le module \texttt{XXXXX} implÃ©mente les rÃ©seaux de neurones pour les donnÃ©es ECG.
+
+Finalement, en utilisant un CNN pour faire la dÃ©tection d'arythmies cardiaques, nous avons essayÃ© plusieurs configurations pour maximiser la classification. En mettant un CNN et un rÃ©seau MLP complÃštement connectÃ© bout-Ã -bout, nous avons vÃ©rifiÃ© l'erreur de classification en faisant varier le nombre de couches de convolution et de pooling. Nous avons gardÃ© le MLP constant d'expÃ©rience en expÃ©rience avec une couche cachÃ©e de 50 neurones. Nous nous sommes limitÃ©s Ã  des tailles de fenÃªtres de convolution de largeur 4 et des filtres de pooling de largeur 4. Nous n'avons pas jugÃ© nÃ©cessaire de tester le CNN avec les donnÃ©es prÃ©traitÃ©es Ã  l'aide de PCA ou d'une transformation de Fourier. Le taux de classification sur l'ensemble de validation en fonction du nombre de convolutions est rÃ©sumÃ© au tableau \ref{tab:n_conv_ecg} en annexe. Notons que ces rÃ©sultats correspondent au nombre optimal d'Ã©poques d'entraÃ®nement pour chaque combinaison d'hyperparamÃštres. Ceci sera Ã©galement le cas pour tous les tableaux prÃ©sentant des rÃ©sultats des MLP et des CNN discutÃ©s dans cet article.
+
+
+L'Ã©volution de l'apprentissage en fonction du nombre d'Ã©poques d'entraÃ®nement pour le rÃ©seau convolutionnel avec 4 convolutions prÃ©sentÃ© au tableau \ref{tab:n_conv_ecg} testÃ© sur l'ensemble de test est prÃ©sentÃ© Ã  la figure \ref{fig:ecg_cnn_train}.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/ecg_cnn_train.png}
+\caption{Ãvolution du taux de classification sur les donnÃ©es d'Ã©lectrocardiogramme en fonction du nombre d'Ã©poques d'entraÃ®nement pour le rÃ©seau de neurones convolutif avec 4 convolutions. }
+\label{fig:ecg_cnn_train}
+\end{center}
+\end{figure}
+
+
+Les rÃ©sultats finaux de la prÃ©cision de chaque algorithmes sur les Ã©lectrocardiogrammes sont prÃ©sentÃ©s au tableau \ref{tab:ecg_final_results}. Les rÃ©sultats prÃ©sentÃ©s sont ceux pour lesquels les meilleurs rÃ©sultats ont Ã©tÃ© obtenus.
+
+\begin{table*}[htb]
+  \caption{RÃ©sultats pour la classification d'Ã©lectrocardiogrammes sur l'ensemble de test pour chaque algorithme utilisÃ©.}
+  \vspace{0.2cm}
+  \label{tab:ecg_final_results}
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    \sc{Algorithme}     & SVM     & MLP & CNN \\
+    \midrule
+    \sc{PrÃ©cision} & 61.37\%  & 60.69\%   & 77.39\%  \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+Comme attendu, on remarque que le taux de classification des CNN est de plus de 16\% plus Ã©levÃ© que celui obtenu avec les autres algorithmes. Cette situation avait Ã©tÃ© anticipÃ©e, puisque les traits caractÃ©ristiques des signaux d'Ã©lectrocardiogrammes sont autocorrÃ©lÃ©es. Le module \texttt{XXXXXX} implÃ©mente les CNN pour les donnÃ©es ECG.
+
+
+%%%%%%%%%%%%%% SDSS
+
+
+\subsection{Spectres d'Ã©toiles}
+
+Les rÃ©sultats obtenus pour la classification de spectres stellaires ont Ã©tÃ© beaucoup plus concluants que ceux obtenus pour la classification d'Ã©lectrocardiogrammes. Tout d'abord, avec les SVM, nous avons sÃ©lectionnÃ© un noyau RBF, puis avons essayÃ© plusieurs valeurs pour la constante de pÃ©nalitÃ© $C$. Les rÃ©sultats obtenus sont prÃ©sentÃ©s Ã  la figure \ref{fig:sdss_svm} en annexe. On voit que la constante $C$ a un effet important sur les rÃ©sultats obtenus, et que la valeur optimale de $C$ s'avÃšre Ãªtre *********. Le module \texttt{XXXXXX} implÃ©mente le SVM pour les donnÃ©es de SDSS.
+
+Pour les rÃ©seaux de neurones, nous avons essayÃ© plusieurs architectures au hasard et avons aussi modifier la taille des lots et la rÃ©gularisation pour l'apprentissage. Encore une fois, les non-linÃ©aritÃ©s choisies dans le rÃ©seau Ã©taient de type {ReLU} et celles Ã  la sortie Ã©taient de type \textit{softmax}. La table \ref{fig:arch_sdss_dnn} en annexe prÃ©sente le taux de classification obtenu pour diffÃ©rentes architectures de rÃ©seau de neurones. L'effet de l'architecture sur le taux d'apprentissage Ã©tait minime, ne faisant varier celui-ci que par moins de 1\% Ã  taille de lot constant (50) et sans rÃ©gularisation. Les rÃ©sultats de classification dÃ©pendent donc davantage du \textit{seed} que de ces hyperparamÃštres.
+
+Le second hyperparamÃštre Ã  ajuster pour rÃ©gler la capacitÃ© du modÃšle est la taille des lots. Pour le MLP avec les couches cachÃ©es $[150,100,50]$, plusieurs tailles de lots ont Ã©tÃ© testÃ©es et les rÃ©sultats sont rapportÃ©s Ã  la table \ref{tab:batch_sdss_dnn}. Encore une fois, le taux de classification ne varie que de trÃšs peu pour diffÃ©rentes tailles de lots.  Finalement, nous avons essayÃ© plusieurs types de rÃ©gularisations pour le mÃªme rÃ©seau de neurones. La figure \ref{fig:reg_sdss_dnn} prÃ©sente l'effet de la rÃ©gularisation sur le taux de classification maximale. Les rÃ©sultats obtenus grÃ¢ce Ã  la rÃ©gularisation n'ont pas non plus eu beaucoup d'influence sur le taux de classification. Les rÃ©seaux de neurones sont implÃ©mentÃ©s pour les donnÃ©es de SDSS par le module \texttt{XXXXX}.
+
+Enfin, un algorithme de type rÃ©seau de neurones convolutif Ã  Ã©tÃ© Ã©tudiÃ© pour l'ensemble de donnÃ©es SDSS. Les hyperparamÃštres Ã©tudiÃ©s sont le nombre de convolution ainsi que le nombre de \textit{feature maps}, le \textit{batch size} et le nombre de couches cachÃ©es ainsi que le nombre de neurones les composant du rÃ©seau de neurones transmettant le vecteur de sortie du CNN Ã  la sortie du rÃ©seau.Mentionnons Ã©galement qu'un \textit{max pooling} est effectuÃ© aprÃšs chaque convolution.
+
+D'abord, le nombre de convolutions effectuÃ©es Ã  Ã©tÃ© Ã©tudiÃ© pour des nombres variables de \textit{feature maps}. Pour ces essais, le rÃ©seau de neurone Ã  la sortie du CNN a Ã©tÃ© gardÃ© identique avec une couche cachÃ©e de taille 10 et fonctions d'activation ReLU et softmax. Les \textit{batch size} sont Ã©galement demeurÃ©s constant Ã  50. La table~\ref{tab:sdss_cnn_conv} en annexe montre les taux de classifications obtenus pour l'ensemble de validation pour quelques unes de ces combinaisons. Les rÃ©sultats obtenus sont relativement similaires, mais tentons d'optimiser les autres hyperparamÃštres pour la configuration [10, 50].
+
+Essayons diffÃ©rents \textit{batch size} afin de pouvoir observer l'effet de cet hyperparamÃštre. La table~\ref{tab:sdss_cnn_bs} en annexe montre les rÃ©sultats obtenus pour des \textit{batch size} de respectivement 5, 50 et 500. On voit que le choix des \textit{batch size} n'a que peu d'influence sur le taux de classification. NÃ©anmoins, puisque ce sont des \textit{batch size} de 50 qui donnent de (lÃ©gÃšrement) meilleurs rÃ©sultats, prenons cette valeur pour la suite des choses.
+
+Enfin, optimisons la taille de la couche cachÃ©e du rÃ©seau de neurone en sortie du CNN. Les architectures considÃ©rÃ©es sont celles se trouvant Ã  la table~\ref{tab:sdss_cnn_dnn} en annexe. Encore une fois, on voit qu'il n'y a que trÃšs peu de diffÃ©rence entre les diffÃ©rentes valeurs de ces hyperparamÃštres. On note cependant que c'est une seule couche cachÃ©e de taille 50 qui a donnÃ© les meilleurs rÃ©sultats.
+
+Concluons cette analyse en notant que les hyperparamÃštres n'avaient pratiquement aucun effet sur les taux de classification obtenus. Cela signifie probablement que l'ensemble de donnÃ©es est en gÃ©nÃ©ral trÃšs facile Ã  classer. On peut imaginer que les donnÃ©es forment des \textit{clusters} bien dÃ©finis dans l'espace des traits caractÃ©ristiques sauf pour environ 5\% des spectres qui se mÃ©langent Ã  des \textit{clusters} d'une autre classe que la leur. Il est donc facile d'obtenir environ 94\% de bonnes classifications sur un ensemble test, mais il serait trÃšs ardu d'obtenir davantage. On remarque Ã©galement que le taux classification pour l'ensemble d'entraÃ®nement, bien que plus Ã©levÃ© que celui de l'ensemble de validation, n'a jamais atteint 100\%, ce qui est cohÃ©rent avec l'hypothÃšse proposÃ©e. Le module \texttt{XXXXX} implÃ©mente les CNN pour les donnÃ©es de SDSS.
+
+
+
+
+
+
+
+Les rÃ©sultats finaux de la prÃ©cision de chaque algorithme sur les spectres stellaires sont prÃ©sentÃ©s au tableau \ref{tab:sdss_final_results}.
+\begin{table*}[htb]
+  \caption{RÃ©sultats pour la classification de spectres d'Ã©toiles pour chaque algorithme utilisÃ©.}
+  \vspace{0.2cm}
+  \label{tab:sdss_final_results}
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    \sc{Algorithme}     & SVM     & MLP & CNN \\
+    \midrule
+    \sc{PrÃ©cision} & \%  & \%   & 77.17\%  \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+% Discussion et conclusion
+\section{Conclusion}\label{sec:conclusion}
+
+\section{RÃ©partition et remerciements}
+
+
+\small
+\bibliographystyle{apalike}
+\bibliography{report}
+
+\clearpage
+\section*{Annexe}
+
+%svm ecg
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme SVM pour les trois noyaux Ã©tudiÃ©s avec utilisation du PCA avec les 300 premiÃšres composantes principales conservÃ©es dans le prÃ©traitement des donnÃ©es pour l'ensemble de donnÃ©es d'Ã©lectrocardiogrammes.}
+  \vspace{0.2cm}
+  \label{tab:ecg_pca_300}
+  \centering
+  \begin{tabular}{lllllll}
+    \toprule
+     & \multicolumn{3}{c}{\sc{Ens. d'entraÃ®nement}} & \multicolumn{3}{c}{\sc{Ens. de validation}}\\
+    \sc{Noyau} & $C=0.75$ & $C=1.0$ & $C=1.25$ & $C=0.75$ & $C=1.0$ & $C=1.25$ \\
+    \midrule
+    RBF          & 86.51\% & 95.62\% & 98.03\% & 58.97\% & 58.55\% & 58.48\% \\
+    Poly. deg. 2 & 93.56\% & 95.34\% & 96.13\% & 53.91\% & 53.48\% & 53.55\% \\
+    Poly. deg. 3 & 99.70\% & 99.88\% & 99.89\% & 55.03\% & 55.17\% & 54.54\% \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme SVM pour les trois noyaux Ã©tudiÃ©s avec utilisation du PCA avec les 100 premiÃšres composantes principales conservÃ©es dans le prÃ©traitement des donnÃ©es pour l'ensemble de donnÃ©es d'Ã©lectrocardiogrammes.}
+  \vspace{0.2cm}
+  \label{tab:ecg_pca_100}
+  \centering
+  \begin{tabular}{lllllll}
+    \toprule
+     & \multicolumn{3}{c}{\sc{Ens. d'entraÃ®nement}} & \multicolumn{3}{c}{\sc{Ens. de validation}}\\
+    \sc{Noyau} & $C=0.75$ & $C=1.0$ & $C=1.25$ & $C=0.75$ & $C=1.0$ & $C=1.25$ \\
+    \midrule
+    RBF          & 97.98\% & 99.63\% & 99.86\% & 59.11\% & 58.34\% & 58.90\% \\
+    Poly. deg. 2 & 91.05\% & 92.42\% & 93.77\% & 52.99\% & 53.41\% & 53.55\% \\
+    Poly. deg. 3 & 99.98\% & 99.98\% & 99.98\% & 52.15\% & 52.01\% & 51.58\% \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/ecg_constant.png}
+\caption{Ãvolution du taux de classification sur les donnÃ©es d'Ã©lectrocardiogramme en fonction de la constante de pÃ©nalitÃ© C pour l'algorithme SVM avec des donnÃ©es transformÃ©es Ã  l'aide d'une transformÃ©e de Fourier. }
+\label{fig:ecg_val_c}
+\end{center}
+\end{figure}
+
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme SVM pour les trois noyaux Ã©tudiÃ©s avec l'utilisation d'une transformÃ©e de Fourier lors du prÃ©traitment des donnÃ©es pour l'ensemble de donnÃ©es d'Ã©lectrocardiogrammes.}
+  \vspace{0.2cm}
+  \label{tab:ecg_fourrier}
+  \centering
+  \begin{tabular}{lllllll}
+    \toprule
+     & \multicolumn{3}{c}{\sc{Ens. d'entraÃ®nement}} & \multicolumn{3}{c}{\sc{Ens. de validation}}\\
+    \sc{Noyau} & $C=0.5$ & $C=1.0$ & $C=1.5$ & $C=0.5$ & $C=1.0$ & $C=1.5$ \\
+    \midrule
+    RBF          & 59.54\% & 100.00\% & 100.00\% & 58.90\% & 58.90\% & 58.90\% \\
+    Poly. deg. 2 & 100.00\% & 100.00\% & 100.00\% & 55.52\% & 55.52\% & 55.52\% \\
+    Poly. deg. 3 & 100.00\% & 100.00\% & 100.00\% & 59.68\% & 54.40\% & 54.40\% \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+% dnn ecg
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{figures/ecg_dnn_train.png}
+\caption{Ãvolution du taux de classification sur les donnÃ©es d'Ã©lectrocardiogramme en fonction du nombre d'Ã©poques d'entraÃ®nement pour le rÃ©seau de neurones de type MLP avec deux couches cachÃ©es de 250 et 100 neurones, respectivement. }
+\label{fig:ecg_dnn_train}
+\end{center}
+\end{figure}
+
+% cnn ecg
+
+\begin{table*}[htb]
+  \caption{Taux de classification en fonction du nombre de convolutions dans le rÃ©seau de neurones convolutionnel pour les donnÃ©es d'Ã©lectrocardiogramme.}
+  \vspace{0.2cm}
+  \label{tab:n_conv_ecg}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Config.} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    $[100]$          & 0.7962 & 0.6882 \\
+    $[50, 100]$      & 0.7917 & 0.7476 \\
+    $[10, 50, 100]$     & 0.7922 & 0.7672\\
+    $[10, 50, 100, 200]$ & 0.8198 & 0.7792 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+
+
+%svm sdss
+
+
+
+%mlp sdss
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme DNN pour l'ensemble de donnÃ©es SDSS pour diffÃ©rentes architectures.}
+  \vspace{0.2cm}
+  \label{tab:sdss_cnn_dnn}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Config.} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    $[50]$           & 0.9732 & 0.9393 \\
+    $[100]$          & 0.9774 & 0.9389 \\
+    $[200]$          & 0.9553 & 0.9393 \\
+    $[400]$          & 0.9778 & 0.9396 \\
+    $[200, 100]$     & 0.9783 & 0.9439 \\
+    $[200, 50]$      & 0.9715 & 0.9437 \\
+    $[500, 100]$     & 0.9791 & 0.9436 \\
+    $[150, 100, 50]$ & 0.9792 & 0.9456 \\
+    $[500, 100, 50]$ & 0.9812 & 0.9431 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme DNN pour l'ensemble de donnÃ©es SDSS en fonction \textit{batch size} pour l'architecture [150, 100, 50].}
+  \vspace{0.2cm}
+  \label{tab:sdss_cnn_dnn}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Batch size} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    5           & 0.9684 & 0.9431 \\
+    50          & 0.9729 & 0.9408 \\
+    500         & 0.9794 & 0.9441 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+%cnn sdss
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme CNN pour l'ensemble de donnÃ©es SDSS en fonction du nombre de filtres de convolution par couche de convolution.}
+  \vspace{0.2cm}
+  \label{tab:sdss_cnn_conv}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Config.} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    $[10]$          & 0.9741 & 0.9375 \\
+    $[50]$          & 0.9902 & 0.9423 \\
+    $[100]$         & 0.9862 & 0.9447 \\
+    $[10, 50]$      & 0.9600 & 0.9457 \\
+    $[50, 100]$     & 0.9896 & 0.9440 \\
+    $[10, 50, 100]$ & 0.9741 & 0.9455 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme CNN pour l'ensemble de donnÃ©es SDSS en fonction de la taille des lots.}
+  \vspace{0.2cm}
+  \label{tab:sdss_cnn_bs}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Batch size} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    5     & 0.9475 & 0.9413 \\
+    50    & 0.9442 & 0.9440 \\
+    500   & 0.9577 & 0.9431 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\begin{table*}[htb]
+  \caption{Taux de classification obtenu avec l'algorithme CNN pour l'ensemble de donnÃ©es SDSS en fonction de l'architecture du rÃ©seau Ã  la sortie du CNN.}
+  \vspace{0.2cm}
+  \label{tab:sdss_cnn_dnn}
+  \centering
+  \begin{tabular}{lll}
+    \toprule
+    \sc{Config.} & \sc{Ens. d'entraÃ®nement} & \sc{Ens. de validation} \\
+    \midrule
+    $[20]$          & 0.9591 & 0.9425 \\
+    $[50]$          & 0.9626 & 0.9436 \\
+    $[100]$         & 0.9802 & 0.9427 \\
+    $[20, 50]$      & 0.9579 & 0.9404 \\
+    $[50, 100]$     & 0.9768 & 0.9429 \\
+    $[20, 50, 100]$ & 0.9435 & 0.9407 \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+
+\end{document}

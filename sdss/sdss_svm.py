@@ -19,7 +19,7 @@ np.random.seed(69)
 n_classes = 6
 
 def preprocessing_PCA(training, valid, test, n_components):
-    print("Number of principal components : %d"%n_components)
+    print("\nNumber of principal components : %d"%n_components)
 
     if n_components == 0:
         #no pca preprocessing
@@ -32,12 +32,13 @@ def preprocessing_PCA(training, valid, test, n_components):
 
     return training, valid, test
 
-def fit_svm(training, valid, test, kernel='rbf', C=1.0):
+def fit_svm(training, valid, test, kernel='rbf', C=1.0, decision='ovr'):
 
-    print('\nKernel : %s'%kernel)
+    print('Kernel : %s'%kernel)
     print('Penalty parameter C : %.3f'%(C))
 
-    classifier = svm.SVC(kernel=kernel, C=C)
+    classifier = svm.SVC(kernel=kernel, C=C, verbose=True,
+                         decision_function_shape=decision)
     classifier.fit(training.features, training.labels)
 
     train_pred = classifier.predict(training.features)
@@ -52,24 +53,27 @@ def fit_svm(training, valid, test, kernel='rbf', C=1.0):
     print("Validation accuracy : %.2f%%"%(valid_accuracy * 100))
     print("Test accuracy       : %.2f%%"%(test_accuracy * 100))
 
-for n in [0, 20, 40, 60, 80, 100, 150, 200, 250, 500]:
+    print(np.bincount(test_pred))
+    print(np.bincount(test.labels))
 
-    training = datasets.training()
-    valid = datasets.valid()
-    test = datasets.test()
+#for n in [0, 20, 40, 60, 80, 100, 150, 200, 250, 500]:
 
-    training, valid, test = preprocessing_PCA(training, valid, test,
-                                              n_components=n)
-    #training, valid, test = preprocessing_fourier(training, valid, test,
-    #                                              n_features=n)
+training = datasets.training()
+valid = datasets.valid()
+test = datasets.test()
 
-    fit_svm(training, valid, test)
+#training, valid, test = preprocessing_PCA(training, valid, test)
+                                           #   n_components=n)
+#training, valid, test = preprocessing_fourier(training, valid, test,
+#                                              n_features=n)
+for c in [10., 50., 100.]:
+    print("C: %f"%c)
+    fit_svm(training, valid, test, decision='ovr', C=c)
 
 
 
 """
-Results
--------
+Results 
 linear svm :
     training accuracy   : 65.79%
     validation accuracy : 56.51%
@@ -89,5 +93,57 @@ sigmoid svm :
     training accuracy   : 52.15%
     validation accuracy : 51.58%
     test accuracy       : 52.60%
+
+Effect of number of principal components with PCA preprocessing (rbf kernel)
+
+number of principal components : 0 (No PCA preprocessing)
+    training accuracy   : 93.26%
+    validation accuracy : 92.41%
+    test accuracy       : 91.89%
+
+number of principal components : 20
+    training accuracy   : 97.81%
+    validation accuracy : 64.49%
+    test accuracy       : 58.08%
+
+number of principal components : 40
+    training accuracy   : 97.86%
+    validation accuracy : 74.19%
+    test accuracy       : 70.11%
+
+number of principal components : 60
+    training accuracy   : 97.75%
+    validation accuracy : 77.43%
+    test accuracy       : 73.91%
+
+number of principal components : 80 
+    training accuracy   : 97.60%
+    validation accuracy : 79.31%
+    test accuracy       : 76.17%
+
+number of principal components : 100
+    training accuracy   : 97.38%
+    validation accuracy : 81.05%
+    test accuracy       : 77.57%
+
+number of principal components : 150
+    training accuracy   : 96.95%
+    validation accuracy : 83.29%
+    test accuracy       : 80.55%
+
+number of principal components : 200
+    training accuracy   : 96.59%
+    validation accuracy : 84.65%
+    test accuracy       : 82.29%
+
+number of principal components : 250
+    training accuracy   : 96.23%
+    validation accuracy : 84.97%
+    test accuracy       : 82.76%
+
+number of principal components : 500
+    training accuracy   : 94.90%
+    validation accuracy : 84.76%
+    test accuracy       : 82.45%
 
 """

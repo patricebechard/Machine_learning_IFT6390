@@ -25,7 +25,7 @@ DATAZIP = 'data/training2017.zip'
 DATADIR = 'data/training2017'
 DATAURL = "https://physionet.org/challenge/2017/training2017.zip"
 N_PTS = 2500
-N_FEATURES = 500
+N_FEATURES = 400
 
 def retrieve_data():
 
@@ -245,7 +245,11 @@ def preprocess_PCA():
         lim1 = 2 * temp.shape[0] // 3
         lim2 = 5 * temp.shape[0] // 6
 
+<<<<<<< HEAD
+        fmt = ['%.18e' for i in range(n_components)]
+=======
         fmt = ['%.18e' for i in range(N_FEATURES)]
+>>>>>>> 6621b0a5e70dc31ef4f0aaecb19bd4515b78d55b
         fmt.append('%d')
 
         np.savetxt('data/ecg_pca_%d.train'%n_components, temp[:lim1],
@@ -300,10 +304,16 @@ def preprocess_fourier():
                   % (i, datafiles.shape[0]))
 
     #adding labels
+<<<<<<< HEAD
+    datafiles = datafiles[:,-1].astype('float')
+    datafiles = datafiles[datafiles>=0]
+    datafiles = np.expand_dims(datafiles, axis=1)
+=======
     datafiles = np.expand_dims(datafiles[:,-1], axis=1)
     print(len(datafiles))
     datafiles = datafiles[datafiles>=0]
     print(len(datafiles))
+>>>>>>> 6621b0a5e70dc31ef4f0aaecb19bd4515b78d55b
 
     features_table = np.append(features_table, datafiles, axis=1)
     features_table = features_table.astype(np.float32)
@@ -317,16 +327,35 @@ def preprocess_fourier():
         print("Number of Fourier components : %d"%n_components)
 
         labels = features_table[:,-1:]
+<<<<<<< HEAD
+        temp = fft(features_table, axis=1, n=n_components)
+        temp = np.append(temp, labels, axis=1)
+        temp = np.real(temp)			#keep reel part only
+=======
 
         temp = fft(features_table, axis=1, n=n_components)
 
         temp = np.append(temp, labels, axis=1)
 
+>>>>>>> 6621b0a5e70dc31ef4f0aaecb19bd4515b78d55b
 
         # Splitting data in 3 distinct sets (training, valid, test)
         lim1 = 2 * temp.shape[0] // 3
         lim2 = 5 * temp.shape[0] // 6
 
+<<<<<<< HEAD
+        fmt = ['%.18e' for i in range(n_components)]
+        fmt.append('%d')
+
+        print(temp[:lim1])
+
+
+        np.savetxt('data/ecg_fourier_%d.train'%n_components, temp[:lim1],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg_fourier_%d.valid'%n_components, temp[lim1:lim2],
+                   delimiter=',',fmt=fmt)
+        np.savetxt('data/ecg_fourier_%d.test'%n_components, temp[lim2:],
+=======
         fmt = ['%.18e' for i in range(N_FEATURES)]
         fmt.append('%d')
 
@@ -335,11 +364,19 @@ def preprocess_fourier():
         np.savetxt('data/ecg._pca_%dvalid'%n_components, temp[lim1:lim2],
                    delimiter=',',fmt=fmt)
         np.savetxt('data/ecg_pca_%d.test'%n_components, temp[lim2:],
+>>>>>>> 6621b0a5e70dc31ef4f0aaecb19bd4515b78d55b
                    delimiter=',',fmt=fmt)
 
 if __name__ == "__main__":
     #retrieve_data()
+<<<<<<< HEAD
+    preprocess_data()
+    #print_example()
+    #preprocess_PCA()
+    #preprocess_fourier()
+=======
     #preprocess_data()
     #print_example()
     preprocess_PCA()
     preprocess_fourier()
+>>>>>>> 6621b0a5e70dc31ef4f0aaecb19bd4515b78d55b

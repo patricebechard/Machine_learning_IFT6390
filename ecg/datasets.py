@@ -11,10 +11,19 @@ Datasets for sdss
 
 import numpy as np
 
+
 #datasets location
+
 training_loc = "data/ecg.train"
 valid_loc = "data/ecg.valid"
 test_loc = "data/ecg.test"
+
+
+nc = 100
+
+#training_loc = "data/ecg_fourier_%d.train"%nc
+#valid_loc = "data/ecg_fourier_%d.valid"%nc
+#test_loc = "data/ecg_fourier_%d.test"%nc
 
 class training:
     def __init__(self):

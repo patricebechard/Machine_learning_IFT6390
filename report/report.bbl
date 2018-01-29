@@ -7,6 +7,11 @@ Bailer-Jones, C.~A., Irwin, M., and Von~Hippel, T. (1998).
 \newblock {\em Monthly Notices of the Royal Astronomical Society},
   298(2):361--377.
 
+\bibitem[Ball and Brunner, 2010]{ball2010data}
+Ball, N.~M. and Brunner, R.~J. (2010).
+\newblock Data mining and machine learning in astronomy.
+\newblock {\em International Journal of Modern Physics D}, 19(07):1049--1106.
+
 \bibitem[Bu et~al., 2014]{bu2014stellar}
 Bu, Y., Chen, F., and Pan, J. (2014).
 \newblock Stellar spectral subclasses classification based on isomap and svm.
